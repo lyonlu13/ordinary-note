@@ -5,6 +5,7 @@ import { RiToolsFill } from "react-icons/ri";
 import styled from 'styled-components';
 import Text from './Text';
 import Image from './Image';
+import { useRef } from 'react';
 
 const blocksHolder = BlocksHolder.getInstance()
 
@@ -18,8 +19,9 @@ export default observer(function Block({ offsetX, offsetY, zoom, id, selectedBlo
 
     const isSelected = selectedBlock()?.id === id
     const isDragging = draggingBlock()?.id === id
-
+    const ref = useRef(null)
     return <BlockBase
+        ref={ref}
         x={20}
         y={20}
         offsetX={offsetX}
@@ -30,15 +32,15 @@ export default observer(function Block({ offsetX, offsetY, zoom, id, selectedBlo
             top: model.geometry.pos.y * zoom + offsetY,
             left: model.geometry.pos.x * zoom + offsetX,
             transform: `scale(${zoom * 100}%)`,
-            filter: isDragging ? "drop-shadow(12px 12px 1px rgba(0, 0, 0, 0.1))" : ""
+            filter: isDragging ? "drop-shadow(12px 12px 1px rgba(0, 0, 0, 0.1))" : "",
+            transition: "filter 0.3s"
         }}
-        onClick={() => selectedBlock(model)}
+        onClick={() => { selectedBlock(model); }}
     >
-        {isSelected &&
-            <Label color={model.info.color} onMouseDown={() => { draggingBlock(model) }}>
-                {model.name}
-            </Label>
-        }
+
+        <Label color={model.info.color} onMouseDown={() => { draggingBlock(model, ref.current) }} style={displaying(isSelected)}>
+            {model.name}
+        </Label>
         <Outline color={isSelected ? model.info.color : "#ffffff00"} style={{}}>
             {((Component) => {
                 return <Component model={model} />
@@ -46,11 +48,18 @@ export default observer(function Block({ offsetX, offsetY, zoom, id, selectedBlo
             )(ComponentsCast[model.type])}
         </Outline>
 
-        {isSelected &&
-            <DevLabel>
+        {
+            <DevLabel style={displaying(isSelected)}>
                 <RiToolsFill style={{ verticalAlign: 'middle' }} />{id}
             </DevLabel>}
     </BlockBase >
+})
+
+
+const displaying = (show) => ({
+    opacity: show ? 1 : 0,
+    pointerEvent: show ? "auto" : "none",
+    transition: "0.3s"
 })
 
 
@@ -64,6 +73,7 @@ const Outline = styled.div`
   z-index:2;
   border: ${props => `2px solid ${props.color}`};
   transform-origin: top left;
+  transition:0.3s;
 `
 
 const Label = styled.div`
@@ -75,6 +85,7 @@ const Label = styled.div`
   transform: translateY(-100%);
   cursor: move;
   user-select: none;
+  transition:0.3s;
 `
 
 const DevLabel = styled.div`
@@ -87,4 +98,5 @@ const DevLabel = styled.div`
   right:0;
   transform: translateY(100%);
   align-items: center;
+  transition:0.3s;
 `

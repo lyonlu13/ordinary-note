@@ -199,7 +199,6 @@ export class BlocksHolder {
 function save() {
     const blocksHolder = BlocksHolder.getInstance()
     blocksHolder.save()
-    console.log(blocksHolder.blocks);
 }
 
 

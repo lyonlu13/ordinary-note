@@ -61,6 +61,7 @@ function App() {
 
   const originOffset = useRef({ x: 0, y: 0 })
   const originMouse = useRef({ x: 0, y: 0 })
+  const dragOffset = useRef({})
 
   const ref = useRef(null)
   const ref2 = useRef(null)
@@ -73,9 +74,15 @@ function App() {
     return target || selectedBlock
   }
 
-  function dragging(target) {
-    if (target !== undefined)
+  function dragging(target, ref) {
+    if (target !== undefined) {
+      if (ref)
+        dragOffset.current[target.id] = {
+          x: ref.getBoundingClientRect().left - mouseX,
+          y: ref.getBoundingClientRect().top - mouseY
+        }
       setDraggingBlock(target)
+    }
     return target || draggingBlock
   }
 
@@ -150,7 +157,9 @@ function App() {
       setMouseX(e.clientX)
       setMouseY(e.clientY)
       if (draggingBlock) {
-        draggingBlock.setPos((e.clientX - 20 - offsetX) / zoom, (e.clientY + 10 - offsetY) / zoom)
+        draggingBlock.setPos((e.clientX +
+          dragOffset.current[draggingBlock.id].x - offsetX) / zoom, (e.clientY +
+            dragOffset.current[draggingBlock.id].y - offsetY) / zoom)
       }
     }
 
