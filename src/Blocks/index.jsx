@@ -13,8 +13,12 @@ const ComponentsCast = {
     image: Image
 }
 
-export default observer(function Block({ offsetX, offsetY, zoom, id }) {
+export default observer(function Block({ offsetX, offsetY, zoom, id, selectedBlock, draggingBlock }) {
     const model = blocksHolder.get(id)
+
+    const isSelected = selectedBlock()?.id === id
+    const isDragging = draggingBlock()?.id === id
+
     return <BlockBase
         x={20}
         y={20}
@@ -25,21 +29,27 @@ export default observer(function Block({ offsetX, offsetY, zoom, id }) {
         style={{
             top: model.geometry.pos.y * zoom + offsetY,
             left: model.geometry.pos.x * zoom + offsetX,
-            transform: `scale(${zoom * 100}%)`
+            transform: `scale(${zoom * 100}%)`,
+            filter: isDragging ? "drop-shadow(12px 12px 1px rgba(0, 0, 0, 0.1))" : ""
         }}
+        onClick={() => selectedBlock(model)}
     >
-        <Label color={model.info.color}>
-            {model.name}
-        </Label>
-        <Outline color={model.info.color}>
+        {isSelected &&
+            <Label color={model.info.color} onMouseDown={() => { draggingBlock(model) }}>
+                {model.name}
+            </Label>
+        }
+        <Outline color={isSelected ? model.info.color : "#ffffff00"} style={{}}>
             {((Component) => {
                 return <Component model={model} />
             }
             )(ComponentsCast[model.type])}
         </Outline>
-        <DevLabel>
-            <RiToolsFill style={{ verticalAlign: 'middle' }} />{id}
-        </DevLabel>
+
+        {isSelected &&
+            <DevLabel>
+                <RiToolsFill style={{ verticalAlign: 'middle' }} />{id}
+            </DevLabel>}
     </BlockBase >
 })
 

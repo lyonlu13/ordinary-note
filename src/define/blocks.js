@@ -83,7 +83,8 @@ function commonize(target) {
     }
 
     target.setPos = function (x, y) {
-        this.pos = new Position(x, y)
+        this.geometry.pos = new Position(x, y)
+        save()
     }
 
     target.init = function () {
@@ -198,6 +199,7 @@ export class BlocksHolder {
 function save() {
     const blocksHolder = BlocksHolder.getInstance()
     blocksHolder.save()
+    console.log(blocksHolder.blocks);
 }
 
 

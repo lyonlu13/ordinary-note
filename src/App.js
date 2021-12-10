@@ -6,8 +6,7 @@ import { BlockMath } from 'react-katex';
 import { observer } from "mobx-react-lite" // Or "mobx-react".
 import { Test } from 'define/test';
 import { BlocksHolder, TextBlock } from 'define/blocks';
-import { Position } from 'define/basic';
-import Detector from 'Blocks';
+import Block from 'Blocks';
 
 const Touch = styled.div`
   position:absolute;
@@ -34,31 +33,51 @@ const Display = styled.div`
 const blocksHolder = BlocksHolder.getInstance()
 
 
-const WorkSpace = observer(({ offsetX, offsetY, zoom, ids, zooming }) =>
+const WorkSpace = observer(({ offsetX, offsetY, zoom, ids, zooming, selectedBlock, draggingBlock }) =>
   <>
     {ids.map((id) =>
-      <Detector
+      <Block
+        key={id}
         offsetX={offsetX}
         offsetY={offsetY}
         zoom={zoom}
-        id={id} />)}
+        id={id}
+        selectedBlock={selectedBlock}
+        draggingBlock={draggingBlock} />)}
   </>)
 
 
 function App() {
+  const [mouseX, setMouseX] = useState(0);
+  const [mouseY, setMouseY] = useState(0);
+
   const [offsetX, setOffsetX] = useState(500);
   const [offsetY, setOffsetY] = useState(100);
   const [zoom, setZoom] = useState(1);
   const [isHold, setHold] = useState(false);
 
+  const [selectedBlock, setSelectedBlock] = useState(null);
+  const [draggingBlock, setDraggingBlock] = useState(null);
+
   const originOffset = useRef({ x: 0, y: 0 })
   const originMouse = useRef({ x: 0, y: 0 })
+
   const ref = useRef(null)
   const ref2 = useRef(null)
 
   const st = Test.getInstance("Yes");
 
+  function selected(target) {
+    if (target !== undefined)
+      setSelectedBlock(target)
+    return target || selectedBlock
+  }
 
+  function dragging(target) {
+    if (target !== undefined)
+      setDraggingBlock(target)
+    return target || draggingBlock
+  }
 
   function mouseMove(e) {
     if (isHold) {
@@ -80,8 +99,7 @@ function App() {
     }
   }
 
-  function dragEnd() {
-    setHold(false)
+  function mouseUp() {
   }
 
   function zooming(e) {
@@ -127,7 +145,20 @@ function App() {
           ref.current.src = URL.createObjectURL(file)
       }
     };
-  }, [])
+
+    document.onmousemove = (e) => {
+      setMouseX(e.clientX)
+      setMouseY(e.clientY)
+      if (draggingBlock) {
+        draggingBlock.setPos((e.clientX - 20 - offsetX) / zoom, (e.clientY + 10 - offsetY) / zoom)
+      }
+    }
+
+    document.onmouseup = () => {
+      setHold(false)
+      dragging(null)
+    }
+  }, [draggingBlock])
 
   return (
     <>
@@ -138,13 +169,16 @@ function App() {
         offsetY={offsetY}
         zoom={zoom}
         ids={blocksHolder.ids}
+        selectedBlock={selected}
+        draggingBlock={dragging}
       />
       <Touch
         onWheel={zooming}
         isHold={isHold}
         onMouseDown={mouseDown}
-        onMouseUp={dragEnd}
-        onMouseMove={mouseMove} />
+        onMouseUp={mouseUp}
+        onMouseMove={mouseMove}
+        onClick={() => { selected(null) }} />
       {/* <Block
           x={30}
           y={0}
@@ -210,7 +244,7 @@ function App() {
       */}
 
 
-      <Display>({offsetX},{offsetY})<br />{zoom}</Display>
+      <Display>({offsetX},{offsetY})<br />({mouseX},{mouseY})<br />{zoom}</Display>
 
     </>
   );
