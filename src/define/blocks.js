@@ -118,6 +118,11 @@ export class TextBlock {
         this.data.text = text
         save()
     }
+    paste(pastingObject) {
+        if (pastingObject.type == "text") {
+            this.setText(pastingObject.text)
+        }
+    }
 }
 
 export class ImageBlock {
@@ -149,6 +154,10 @@ export class ImageBlock {
     setWidth(width) {
         this.data.width = width
         save()
+    }
+    paste(pastingObject) {
+        if (pastingObject.type = "image")
+            this.setSrc(URL.createObjectURL(pastingObject.file))
     }
 }
 
@@ -189,6 +198,9 @@ export class BlocksHolder {
     remove(id) {
         this.ids = this.ids.filter((d) => d !== id)
         delete this.blocks[id]
+    }
+    sendToFront(id) {
+        this.ids = [...this.ids.filter((d) => d !== id), id]
     }
     save() {
         localStorage.setItem("ids", JSON.stringify(this.ids))

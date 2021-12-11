@@ -41,7 +41,7 @@ export default observer(function Block({ offsetX, offsetY, zoom, id, selectedBlo
         <Label color={model.info.color} onMouseDown={() => { draggingBlock(model, ref.current) }} style={displaying(isSelected)}>
             {model.name}
         </Label>
-        <Outline color={isSelected ? model.info.color : "#ffffff00"} style={{}}>
+        <Outline color={model.info.color} style={{ borderColor: (isSelected ? "" : "#ffffff00") }}>
             {((Component) => {
                 return <Component model={model} />
             }
@@ -58,7 +58,7 @@ export default observer(function Block({ offsetX, offsetY, zoom, id, selectedBlo
 
 const displaying = (show) => ({
     opacity: show ? 1 : 0,
-    pointerEvent: show ? "auto" : "none",
+    pointerEvents: show ? "auto" : "none",
     transition: "0.3s"
 })
 

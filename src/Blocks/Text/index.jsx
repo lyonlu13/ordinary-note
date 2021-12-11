@@ -1,11 +1,11 @@
 import { observer } from 'mobx-react-lite';
 import styled from 'styled-components';
-import React from "react"
+import React, { useRef } from "react"
 import ContentEditable from 'react-contenteditable';
 
 const TextArea = {
-  minWidth: 200,
-  minHeight: 100,
+  minWidth: 210,
+  minHeight: 30,
   outline: "none",
   backgroundColor: "#FFFFFF3A",
   padding: 10,
@@ -17,14 +17,19 @@ top: 4px;
 left: 4px;
 color:gray;
 padding:8px;
+pointer-events: none;
 `
 
 
 export default observer(function Text({ model }) {
-
+  const ref = useRef(null)
   return <>
     <ContentEditable
-      placeholder={"dwd"}
+      ref={ref}
+      onPaste={(e) => {
+        e.stopPropagation()
+      }}
+
       html={model.data.text}
       onChange={(e) => {
         model.setText(e.target.value)
@@ -35,7 +40,7 @@ export default observer(function Text({ model }) {
     />
     {model.data.text == "" &&
       <Placeholder>
-        Text...
+        Text here...
       </Placeholder>}
   </>
 

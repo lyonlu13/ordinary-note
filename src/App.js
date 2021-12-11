@@ -26,7 +26,7 @@ const Display = styled.div`
   width:200px;
   height:80px;
   z-index:2;
-  background-color: gray;
+  background-color: white;
   overflow: hidden;
 `
 
@@ -63,11 +63,6 @@ function App() {
   const originMouse = useRef({ x: 0, y: 0 })
   const dragOffset = useRef({})
 
-  const ref = useRef(null)
-  const ref2 = useRef(null)
-
-  const st = Test.getInstance("Yes");
-
   function selected(target) {
     if (target !== undefined)
       setSelectedBlock(target)
@@ -76,11 +71,13 @@ function App() {
 
   function dragging(target, ref) {
     if (target !== undefined) {
-      if (ref)
+      if (ref) {
         dragOffset.current[target.id] = {
           x: ref.getBoundingClientRect().left - mouseX,
           y: ref.getBoundingClientRect().top - mouseY
         }
+        blocksHolder.sendToFront(target.id)
+      }
       setDraggingBlock(target)
     }
     return target || draggingBlock
@@ -134,22 +131,38 @@ function App() {
     }
   }
 
-  useEffect(() => {
-    document.onpaste = (evt) => {
-      const dT = evt.clipboardData || window.clipboardData;
-      const file = dT.files[0];
-      console.log(dT.types);
-      console.log(file);
-      dT.items[0].getAsString((txt) => { console.log(txt) })
-      if (file) {
+  function forwardPaste(pastingObject) {
+    if (selectedBlock) {
+      selectedBlock.paste(pastingObject)
+    }
+  }
 
-      }
-      //console.log(URL.createObjectURL(file));
+  useEffect(() => {
+    document.onpaste = (e) => {
+      const dT = e.clipboardData || window.clipboardData;
+      const file = dT.files[0];
+      console.log(file);
       if (file) {
-        if (file.type.startsWith('image/'))
-          ref2.current.src = URL.createObjectURL(file)
+        if (file.type.startsWith('image/')) {
+          forwardPaste({
+            type: "image",
+            file: file
+          })
+        }
         if (file.type.startsWith('audio/'))
-          ref.current.src = URL.createObjectURL(file)
+          forwardPaste({
+            type: "audio",
+            file: file
+          })
+
+      } else {
+        if (dT.items[0])
+          dT.items[0].getAsString((txt) => {
+            forwardPaste({
+              type: "text",
+              text: txt
+            })
+          })
       }
     };
 
@@ -167,7 +180,7 @@ function App() {
       setHold(false)
       dragging(null)
     }
-  }, [draggingBlock])
+  }, [draggingBlock, selectedBlock])
 
   return (
     <>
@@ -253,7 +266,7 @@ function App() {
       */}
 
 
-      <Display>({offsetX},{offsetY})<br />({mouseX},{mouseY})<br />{zoom}</Display>
+      <Display>({offsetX},{offsetY})<br />({mouseX},{mouseY})<br />{zoom}<br /> {selectedBlock?.id}</Display>
 
     </>
   );
