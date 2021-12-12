@@ -9,6 +9,7 @@ const TextArea = {
   outline: "none",
   backgroundColor: "#FFFFFF3A",
   padding: 10,
+  whiteSpace: "nowrap"
 }
 
 const Placeholder = styled.div`
@@ -20,7 +21,6 @@ padding:8px;
 pointer-events: none;
 `
 
-
 export default observer(function Text({ model }) {
   const ref = useRef(null)
   return <>
@@ -29,7 +29,6 @@ export default observer(function Text({ model }) {
       onPaste={(e) => {
         e.stopPropagation()
       }}
-
       html={model.data.text}
       onChange={(e) => {
         model.setText(e.target.value)
@@ -37,6 +36,9 @@ export default observer(function Text({ model }) {
       }}
       tagName='div'
       style={TextArea}
+      onKeyDown={(e) => {
+        e.stopPropagation()
+      }}
     />
     {model.data.text == "" &&
       <Placeholder>

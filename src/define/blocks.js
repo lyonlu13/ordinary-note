@@ -65,16 +65,6 @@ function commonize(target) {
         }
     }
 
-    target.pure = function () {
-        return {
-            id: target.id,
-            name: target.name,
-            type: target.type,
-            geometry: target.geometry,
-            data: target.data,
-        }
-    }
-
     target.updateData = function (update) {
         if (update && typeof update === "object")
             update.keys.forEach(key => {
@@ -90,6 +80,11 @@ function commonize(target) {
     target.init = function () {
         target.id = makeId(5)
         return target
+    }
+
+    target.dom = null
+    target.setDom = function (dom) {
+        this.dom = dom
     }
 }
 
@@ -195,16 +190,26 @@ export class BlocksHolder {
     get(id) {
         return this.blocks[id]
     }
-    remove(id) {
-        this.ids = this.ids.filter((d) => d !== id)
-        delete this.blocks[id]
-    }
-    sendToFront(id) {
-        this.ids = [...this.ids.filter((d) => d !== id), id]
+    remove(models) {
+        models.forEach(model => {
+            this.ids = this.ids.filter((d) => d !== model.id)
+            delete this.blocks[model.id]
+        });
+        this.save()
     }
     save() {
         localStorage.setItem("ids", JSON.stringify(this.ids))
         localStorage.setItem("blocks", JSON.stringify(this.ids.map(id => this.blocks[id].pure())))
+    }
+
+    sendToFront(id) {
+        this.ids = [...this.ids.filter((d) => d != id), id]
+    }
+
+    new(model) {
+        this.blocks[model.id] = model
+        this.ids.push(model.id)
+        this.save()
     }
 }
 

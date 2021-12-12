@@ -5,7 +5,7 @@ import { RiToolsFill } from "react-icons/ri";
 import styled from 'styled-components';
 import Text from './Text';
 import Image from './Image';
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 
 const blocksHolder = BlocksHolder.getInstance()
 
@@ -17,10 +17,15 @@ const ComponentsCast = {
 export default observer(function Block({ offsetX, offsetY, zoom, id, selectedBlock, draggingBlock }) {
     const model = blocksHolder.get(id)
 
-    const isSelected = selectedBlock()?.id === id
-    const isDragging = draggingBlock()?.id === id
+    const isSelected = !!selectedBlock().find((item) => item.id === id)
+    const isDragging = draggingBlock() && isSelected
     const ref = useRef(null)
-    return <BlockBase
+
+    useEffect(() => {
+        model.setDom(ref.current)
+    }, [ref.current])
+
+    return model ? <BlockBase
         ref={ref}
         x={20}
         y={20}
@@ -35,24 +40,36 @@ export default observer(function Block({ offsetX, offsetY, zoom, id, selectedBlo
             filter: isDragging ? "drop-shadow(12px 12px 1px rgba(0, 0, 0, 0.1))" : "",
             transition: "filter 0.3s"
         }}
-        onClick={() => { selectedBlock(model); }}
+        onMouseUp={(e) => {
+            if (isDragging) return
+            if (e.shiftKey)
+                selectedBlock([...selectedBlock(), model]);
+            else
+                selectedBlock([model]);
+        }}
     >
 
-        <Label color={model.info.color} onMouseDown={() => { draggingBlock(model, ref.current) }} style={displaying(isSelected)}>
+        <Label
+            color={model.info.color}
+            onMouseDown={() => {
+                if (selectedBlock().length === 1)
+                    blocksHolder.sendToFront(model.id)
+                draggingBlock(true)
+            }}
+            style={displaying(isSelected && !isDragging)}>
             {model.name}
         </Label>
         <Outline color={model.info.color} style={{ borderColor: (isSelected ? "" : "#ffffff00") }}>
             {((Component) => {
-                return <Component model={model} />
+                return <Component model={model} draggingBlock={draggingBlock} isSelected={isSelected} />
             }
             )(ComponentsCast[model.type])}
         </Outline>
 
-        {
-            <DevLabel style={displaying(isSelected)}>
-                <RiToolsFill style={{ verticalAlign: 'middle' }} />{id}
-            </DevLabel>}
-    </BlockBase >
+        {<DevLabel style={displaying(isSelected)}>
+            <RiToolsFill style={{ verticalAlign: 'middle' }} />{id}
+        </DevLabel>}
+    </BlockBase > : null
 })
 
 

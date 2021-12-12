@@ -12,12 +12,14 @@ const TextArea = {
 }
 
 
-export default observer(function Image({ model }) {
+export default observer(function Image({ draggingBlock, isSelected, model }) {
 
-  return <div onDragOver={(e) => {
-    e.stopPropagation();
-    e.preventDefault();
-  }}
+  return <div
+    onMouseDown={() => { if (isSelected) draggingBlock(true) }}
+    onDragOver={(e) => {
+      e.stopPropagation();
+      e.preventDefault();
+    }}
     onDrop={(e) => {
       e.stopPropagation();
       e.preventDefault();
@@ -37,5 +39,6 @@ export default observer(function Image({ model }) {
       alt=""
       src={model.data.src}
       width={model.data.width}
+      draggable="false"
     /></div>
 })

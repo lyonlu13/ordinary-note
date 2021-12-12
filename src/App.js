@@ -5,8 +5,11 @@ import 'katex/dist/katex.min.css';
 import { BlockMath } from 'react-katex';
 import { observer } from "mobx-react-lite" // Or "mobx-react".
 import { Test } from 'define/test';
-import { BlocksHolder, TextBlock } from 'define/blocks';
+import { BlocksHolder, ImageBlock, TextBlock } from 'define/blocks';
 import Block from 'Blocks';
+import { BiCurrentLocation } from "react-icons/bi";
+import { FaMousePointer } from "react-icons/fa";
+import { MdZoomOutMap } from "react-icons/md";
 
 const Touch = styled.div`
   position:absolute;
@@ -15,8 +18,6 @@ const Touch = styled.div`
   width:100vw;
   height:100vh;
   z-index:1;
-  cursor: ${props => props.isHold ? "grabbing" : "auto"};
-  
 `
 
 const Display = styled.div`
@@ -24,10 +25,29 @@ const Display = styled.div`
   top:20px;
   right:20px;
   width:200px;
-  height:80px;
+  padding:10px;
   z-index:2;
   background-color: white;
   overflow: hidden;
+  border-radius: 2px;
+  box-shadow: 1px 1px 5px 1px gray;
+`
+
+const InfoLine = styled.div`
+  display: flex;
+  align-items:center;
+  margin:5px 0;
+`
+
+const Tag = styled.div`
+  gap: 2px;
+  display: inline-flex;
+  border-radius: 2px;
+  background-color: ${props => props.bgColor};
+  padding:2px 4px;
+  color: white;
+  align-items:center;
+  margin-right:10px;
 `
 
 const blocksHolder = BlocksHolder.getInstance()
@@ -56,8 +76,10 @@ function App() {
   const [zoom, setZoom] = useState(1);
   const [isHold, setHold] = useState(false);
 
-  const [selectedBlock, setSelectedBlock] = useState(null);
-  const [draggingBlock, setDraggingBlock] = useState(null);
+  const [space, setSpace] = useState(false);
+
+  const [selectedBlocks, setSelectedBlocks] = useState([]);
+  const [isDragging, setDragging] = useState(false);
 
   const originOffset = useRef({ x: 0, y: 0 })
   const originMouse = useRef({ x: 0, y: 0 })
@@ -65,22 +87,24 @@ function App() {
 
   function selected(target) {
     if (target !== undefined)
-      setSelectedBlock(target)
-    return target || selectedBlock
+      setSelectedBlocks(target)
+    return target || selectedBlocks
   }
 
-  function dragging(target, ref) {
-    if (target !== undefined) {
-      if (ref) {
-        dragOffset.current[target.id] = {
-          x: ref.getBoundingClientRect().left - mouseX,
-          y: ref.getBoundingClientRect().top - mouseY
-        }
-        blocksHolder.sendToFront(target.id)
+  function dragging(isDrag) {
+    if (isDrag)
+      if (selectedBlocks.length > 0) {
+        selectedBlocks.forEach(block => {
+          dragOffset.current[block.id] = {
+            x: block.dom.getBoundingClientRect().left - mouseX,
+            y: block.dom.getBoundingClientRect().top - mouseY
+          }
+        });
       }
-      setDraggingBlock(target)
-    }
-    return target || draggingBlock
+
+    if (isDrag !== undefined)
+      setDragging(isDrag)
+    return isDrag || isDragging
   }
 
   function mouseMove(e) {
@@ -94,16 +118,13 @@ function App() {
   }
 
   function mouseDown(e) {
-    if (e.buttons === 4) {
+    if (space) {
       originOffset.current.x = offsetX
       originOffset.current.y = offsetY
       originMouse.current.x = e.clientX
       originMouse.current.y = e.clientY
       setHold(true)
     }
-  }
-
-  function mouseUp() {
   }
 
   function zooming(e) {
@@ -131,9 +152,22 @@ function App() {
     }
   }
 
+  function newBlockByPaste(pastingObject) {
+    switch (pastingObject.type) {
+      case "text":
+        blocksHolder.new(new TextBlock(null, "新文字方塊", { pos: { x: 0, y: 0 } }, { text: pastingObject.text }).init())
+        break
+      case "image":
+        blocksHolder.new(new ImageBlock(null, pastingObject.file.name, { pos: { x: 0, y: 0 } }, { src: URL.createObjectURL(pastingObject.file), width: 300 }).init())
+        break
+    }
+  }
+
   function forwardPaste(pastingObject) {
-    if (selectedBlock) {
-      selectedBlock.paste(pastingObject)
+    if (selectedBlocks.length === 1) {
+      selectedBlocks[0].paste(pastingObject)
+    } else {
+      newBlockByPaste(pastingObject)
     }
   }
 
@@ -141,7 +175,7 @@ function App() {
     document.onpaste = (e) => {
       const dT = e.clipboardData || window.clipboardData;
       const file = dT.files[0];
-      console.log(file);
+      console.log(dT);
       if (file) {
         if (file.type.startsWith('image/')) {
           forwardPaste({
@@ -169,18 +203,36 @@ function App() {
     document.onmousemove = (e) => {
       setMouseX(e.clientX)
       setMouseY(e.clientY)
-      if (draggingBlock) {
-        draggingBlock.setPos((e.clientX +
-          dragOffset.current[draggingBlock.id].x - offsetX) / zoom, (e.clientY +
-            dragOffset.current[draggingBlock.id].y - offsetY) / zoom)
+      if (isDragging) {
+        selectedBlocks.forEach((block) => {
+          block.setPos((
+            e.clientX + dragOffset.current[block.id].x - offsetX) / zoom,
+            (e.clientY + dragOffset.current[block.id].y - offsetY) / zoom)
+        })
       }
     }
 
     document.onmouseup = () => {
       setHold(false)
-      dragging(null)
+      dragging(false)
     }
-  }, [draggingBlock, selectedBlock])
+
+    document.onkeydown = (e) => {
+      if (e.key === "Delete") {
+        if (selectedBlocks.length >= 1)
+          blocksHolder.remove(selectedBlocks)
+      }
+      if (e.key === " ") {
+        setSpace(true)
+      }
+    }
+
+    document.onkeyup = (e) => {
+      if (e.key === " ") {
+        setSpace(false)
+      }
+    }
+  }, [isDragging, selectedBlocks])
 
   return (
     <>
@@ -196,11 +248,12 @@ function App() {
       />
       <Touch
         onWheel={zooming}
-        isHold={isHold}
         onMouseDown={mouseDown}
-        onMouseUp={mouseUp}
         onMouseMove={mouseMove}
-        onClick={() => { selected(null) }} />
+        onClick={() => selected([])}
+        style={{
+          cursor: isHold ? "grabbing" : (space ? "grab" : "auto")
+        }} />
       {/* <Block
           x={30}
           y={0}
@@ -262,11 +315,21 @@ function App() {
           label={"Image"}
         >
           <img ref={ref2} width="400" src="https://www.mirrormedia.com.tw/assets/images/20210811183042-492063c52c4c70e0ffe94db30f8395b8-mobile.jpg" alt="" />        </Block>
-     
+
       */}
 
-
-      <Display>({offsetX},{offsetY})<br />({mouseX},{mouseY})<br />{zoom}<br /> {selectedBlock?.id}</Display>
+      <Display>
+        <InfoLine>
+          <Tag bgColor="#047BEB"><BiCurrentLocation /> Offset</Tag> ({offsetX},{offsetY})
+        </InfoLine>
+        <InfoLine>
+          <Tag bgColor="#F3C600"><FaMousePointer /> Mouse</Tag> ({mouseX},{mouseY})
+        </InfoLine>
+        <InfoLine>
+          <Tag bgColor="#006823"><MdZoomOutMap /> Zoom</Tag>{Math.round(zoom * 100)}%
+        </InfoLine>
+        {selectedBlocks?.id}
+      </Display>
 
     </>
   );
