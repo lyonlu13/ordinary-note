@@ -74,7 +74,6 @@ function commonize(target) {
 
     target.setPos = function (x, y) {
         this.geometry.pos = new Position(x, y)
-        save()
     }
 
     target.init = function () {
@@ -111,7 +110,6 @@ export class TextBlock {
     }
     setText(text) {
         this.data.text = text
-        save()
     }
     paste(pastingObject) {
         if (pastingObject.type == "text") {
@@ -144,15 +142,43 @@ export class ImageBlock {
     }
     setSrc(src) {
         this.data.src = src
-        save()
     }
     setWidth(width) {
         this.data.width = width
-        save()
     }
     paste(pastingObject) {
         if (pastingObject.type = "image")
             this.setSrc(URL.createObjectURL(pastingObject.file))
+    }
+}
+
+export class LatexBlock {
+    info = new BlockInfo("latex", "Latex方塊", "#ffc400", "image")
+    constructor(id, name, geometry, data) {
+        this.data = {};
+        this.id = id;
+        this.name = name
+        this.geometry = geometry;
+        this.data = data;
+        commonize(this)
+        makeAutoObservable(this)
+    }
+    new() {
+        this.data.code = "\\frac{1}{2}"
+        return this
+    }
+    value() {
+        return {
+            type: "text",
+            value: this.data.code
+        }
+    }
+    setCode(code) {
+        this.data.code = code
+    }
+    paste(pastingObject) {
+        if (pastingObject.type = "text")
+            this.setCode(pastingObject.text)
     }
 }
 
@@ -178,6 +204,10 @@ export class BlocksHolder {
             this.blocks[newImage.id] = newImage
             this.ids = [newText.id, newImage.id]
         }
+
+        setInterval(() => {
+            save()
+        }, 2000)
 
         makeAutoObservable(this)
     }

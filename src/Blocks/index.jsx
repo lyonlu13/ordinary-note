@@ -6,12 +6,14 @@ import styled from 'styled-components';
 import Text from './Text';
 import Image from './Image';
 import { useRef, useEffect } from 'react';
+import Latex from 'Blocks/Latex';
 
 const blocksHolder = BlocksHolder.getInstance()
 
 const ComponentsCast = {
     text: Text,
-    image: Image
+    image: Image,
+    latex: Latex
 }
 
 export default observer(function Block({ offsetX, offsetY, zoom, id, selectedBlock, draggingBlock }) {
@@ -20,10 +22,14 @@ export default observer(function Block({ offsetX, offsetY, zoom, id, selectedBlo
     const isSelected = !!selectedBlock().find((item) => item.id === id)
     const isDragging = draggingBlock() && isSelected
     const ref = useRef(null)
+    const domSet = useRef(false)
 
     useEffect(() => {
-        model.setDom(ref.current)
-    }, [ref.current])
+        if (!domSet.current && model) {
+            model.setDom(ref.current)
+            domSet.current = true
+        }
+    }, [ref.current, model])
 
     return model ? <BlockBase
         ref={ref}
@@ -57,11 +63,11 @@ export default observer(function Block({ offsetX, offsetY, zoom, id, selectedBlo
                 draggingBlock(true)
             }}
             style={displaying(isSelected && !isDragging)}>
-            {model.name}
+            {model.name || model.info.name}
         </Label>
         <Outline color={model.info.color} style={{ borderColor: (isSelected ? "" : "#ffffff00") }}>
             {((Component) => {
-                return <Component model={model} draggingBlock={draggingBlock} isSelected={isSelected} />
+                return <Component model={model} draggingBlock={draggingBlock} isSelected={isSelected} selectedBlock={selectedBlock} />
             }
             )(ComponentsCast[model.type])}
         </Outline>

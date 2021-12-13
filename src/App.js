@@ -10,6 +10,7 @@ import Block from 'Blocks';
 import { BiCurrentLocation } from "react-icons/bi";
 import { FaMousePointer } from "react-icons/fa";
 import { MdZoomOutMap } from "react-icons/md";
+import { CommandBar } from './components/CommandBar/index';
 
 const Touch = styled.div`
   position:absolute;
@@ -232,7 +233,9 @@ function App() {
         setSpace(false)
       }
     }
-  }, [isDragging, selectedBlocks])
+
+    document.onwheel = zooming
+  }, [isDragging, selectedBlocks, zoom])
 
   return (
     <>
@@ -247,7 +250,6 @@ function App() {
         draggingBlock={dragging}
       />
       <Touch
-        onWheel={zooming}
         onMouseDown={mouseDown}
         onMouseMove={mouseMove}
         onClick={() => selected([])}
@@ -302,7 +304,6 @@ function App() {
           color={"#00a808"}
           label={"LaTeX"}
         >
-          <BlockMath math="\displaystyle \frac{1}{\Bigl(\sqrt{\phi \sqrt{5}}-\phi\Bigr) e^{\frac25 \pi}} = 1+\frac{e^{-2\pi}} {1+\frac{e^{-4\pi}} {1+\frac{e^{-6\pi}} {1+\frac{e^{-8\pi}} {1+\cdots} } } }" />
         </Block>
 
         <Block
@@ -331,6 +332,7 @@ function App() {
         {selectedBlocks?.id}
       </Display>
 
+      <CommandBar />
     </>
   );
 }

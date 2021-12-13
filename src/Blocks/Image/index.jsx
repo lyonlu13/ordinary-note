@@ -2,6 +2,7 @@ import { observer } from 'mobx-react-lite';
 import styled from 'styled-components';
 import React from "react"
 import ContentEditable from 'react-contenteditable';
+import { BlocksHolder } from 'define/blocks';
 
 const TextArea = {
   minWidth: 200,
@@ -12,10 +13,16 @@ const TextArea = {
 }
 
 
-export default observer(function Image({ draggingBlock, isSelected, model }) {
+export default observer(function Image({ draggingBlock, isSelected, selectedBlock, model }) {
 
   return <div
-    onMouseDown={() => { if (isSelected) draggingBlock(true) }}
+    onMouseDown={() => {
+      if (isSelected) {
+        draggingBlock(true)
+        if (selectedBlock().length === 1)
+          BlocksHolder.getInstance().sendToFront(model.id)
+      }
+    }}
     onDragOver={(e) => {
       e.stopPropagation();
       e.preventDefault();
