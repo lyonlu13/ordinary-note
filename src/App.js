@@ -20,18 +20,28 @@ const Touch = styled.div`
   height:100vh;
   z-index:1;
 `
+const RightPanel = styled.div`
+position:absolute;
+top:20px;
+right:20px;
+display: flex;
+flex-direction: column;
+gap: 10px;
+`
+
+const DisplayTitle = styled.h3`
+  margin:0;
+`
 
 const Display = styled.div`
-  position:absolute;
-  top:20px;
-  right:20px;
-  width:200px;
+  width:240px;
   padding:10px;
   z-index:2;
   background-color: white;
   overflow: hidden;
   border-radius: 2px;
   box-shadow: 1px 1px 5px 1px gray;
+  transition: 0.3s;
 `
 
 const InfoLine = styled.div`
@@ -54,18 +64,23 @@ const Tag = styled.div`
 const blocksHolder = BlocksHolder.getInstance()
 
 
-const WorkSpace = observer(({ offsetX, offsetY, zoom, ids, zooming, selectedBlock, draggingBlock }) =>
-  <>
-    {ids.map((id) =>
-      <Block
+const WorkSpace = observer(function ({ offsetX, offsetY, zoom, ids, zooming, selectedBlock, draggingBlock }) {
+
+  return <>
+    {ids.map((id) => {
+      console.log(id);
+
+      return <Block
         key={id}
         offsetX={offsetX}
         offsetY={offsetY}
         zoom={zoom}
         id={id}
         selectedBlock={selectedBlock}
-        draggingBlock={draggingBlock} />)}
-  </>)
+        draggingBlock={draggingBlock} />
+    })}
+  </>
+})
 
 
 function App() {
@@ -318,19 +333,36 @@ function App() {
           <img ref={ref2} width="400" src="https://www.mirrormedia.com.tw/assets/images/20210811183042-492063c52c4c70e0ffe94db30f8395b8-mobile.jpg" alt="" />        </Block>
 
       */}
+      <RightPanel>
+        <Display>
+          <DisplayTitle>資訊</DisplayTitle>
+          <InfoLine>
+            <Tag bgColor="#047BEB"><BiCurrentLocation /> Offset</Tag> ({offsetX},{offsetY})
+          </InfoLine>
+          <InfoLine>
+            <Tag bgColor="#F3C600"><FaMousePointer /> Mouse</Tag> ({mouseX},{mouseY})
+          </InfoLine>
+          <InfoLine>
+            <Tag bgColor="#006823"><MdZoomOutMap /> Zoom</Tag>{Math.round(zoom * 100)}%
+          </InfoLine>
+          {selectedBlocks?.id}
+        </Display>
+        <Display
+          style={{
+            opacity: selectedBlocks.length === 0 ? 0 : 1,
+            pointerEvents: selectedBlocks.length === 0 ? "none" : "auto"
+          }}>
+          <DisplayTitle>屬性</DisplayTitle>
+          {selectedBlocks.length > 1 &&
+            <div>已選擇{selectedBlocks[0].getName()}與其他{selectedBlocks.length - 1}個元素</div>
+          }
+          <div id="attributes" style={{ marginTop: 10 }}>
 
-      <Display>
-        <InfoLine>
-          <Tag bgColor="#047BEB"><BiCurrentLocation /> Offset</Tag> ({offsetX},{offsetY})
-        </InfoLine>
-        <InfoLine>
-          <Tag bgColor="#F3C600"><FaMousePointer /> Mouse</Tag> ({mouseX},{mouseY})
-        </InfoLine>
-        <InfoLine>
-          <Tag bgColor="#006823"><MdZoomOutMap /> Zoom</Tag>{Math.round(zoom * 100)}%
-        </InfoLine>
-        {selectedBlocks?.id}
-      </Display>
+          </div>
+        </Display>
+      </RightPanel>
+
+
 
       <CommandBar />
     </>

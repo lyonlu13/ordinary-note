@@ -6,7 +6,6 @@
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
-    "eslint": "^8.4.1",
     "evaluatex": "^2.2.0",
     "lodash": "^4.17.21",
     "mobx": "^6.3.8",
@@ -17,6 +16,7 @@
     "react-icons": "^4.3.1",
     "react-katex": "^2.0.2",
     "react-scripts": "4.0.3",
+    "react-textarea-autosize": "^8.3.3",
     "styled-components": "^5.3.3",
     "web-vitals": "^1.0.1"
   },
@@ -43,5 +43,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "devDependencies": {}
 }

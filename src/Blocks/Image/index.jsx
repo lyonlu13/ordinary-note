@@ -1,17 +1,6 @@
 import { observer } from 'mobx-react-lite';
-import styled from 'styled-components';
 import React from "react"
-import ContentEditable from 'react-contenteditable';
 import { BlocksHolder } from 'define/blocks';
-
-const TextArea = {
-  minWidth: 200,
-  minHeight: 100,
-  outline: "none",
-  backgroundColor: "#ffffff7b",
-  padding: 10,
-}
-
 
 export default observer(function Image({ draggingBlock, isSelected, selectedBlock, model }) {
 
@@ -43,6 +32,7 @@ export default observer(function Image({ draggingBlock, isSelected, selectedBloc
       }
     }}>
     <img
+      style={{ display: "block" }}
       alt=""
       src={model.data.src}
       width={model.data.width}

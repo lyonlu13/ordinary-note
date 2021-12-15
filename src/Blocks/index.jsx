@@ -18,7 +18,7 @@ const ComponentsCast = {
 
 export default observer(function Block({ offsetX, offsetY, zoom, id, selectedBlock, draggingBlock }) {
     const model = blocksHolder.get(id)
-
+    console.log(blocksHolder.blocks);
     const isSelected = !!selectedBlock().find((item) => item.id === id)
     const isDragging = draggingBlock() && isSelected
     const ref = useRef(null)
@@ -67,6 +67,7 @@ export default observer(function Block({ offsetX, offsetY, zoom, id, selectedBlo
         </Label>
         <Outline color={model.info.color} style={{ borderColor: (isSelected ? "" : "#ffffff00") }}>
             {((Component) => {
+                console.log(model);
                 return <Component model={model} draggingBlock={draggingBlock} isSelected={isSelected} selectedBlock={selectedBlock} />
             }
             )(ComponentsCast[model.type])}

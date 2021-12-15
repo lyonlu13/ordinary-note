@@ -1,5 +1,4 @@
 import { makeAutoObservable } from "mobx"
-import _ from "lodash"
 import { makeId, makeSimpleAutoObservable, Position } from "./basic";
 
 export class BlockInfo {
@@ -11,51 +10,9 @@ export class BlockInfo {
     }
 }
 
-// export class Block {
-//     constructor(id, name, type, geometry) {
-//         this.data = {};
-//         this.id = id;
-//         this.name = name
-//         this.type = type;
-//         this.geometry = geometry;
-//     }
-//     valid() {
-//         if (!this.id) return false;
-//         if (!this.name) return false;
-//         if (!this.type) return false;
-//         if (!this.geometry?.pos?.x || !this.geometry?.pos?.y) return false;
-//         if (!this.geometry?.dim?.w || !this.geometry?.dim?.h) return false;
-//         return true;
-//     }
-//     pure() {
-//         return {
-//             id: this.id,
-//             name: this.name,
-//             type: this.type,
-//             geometry: this.geometry,
-//             data: this.data,
-//         }
-//     }
-//     value() {
-//         return {
-//             type: "empty",
-//             value: null
-//         }
-//     }
-//     updateData(update) {
-//         if (update && typeof update === "object")
-//             update.keys.forEach(key => {
-//                 this.data[key] = update.key
-//             });
-//     }
-//     setPos(x, y) {
-//         this.pos = new Position(x, y)
-//     }
-// }
-
 function commonize(target) {
     target.type = target.info.typename
-    target.pure = function () {
+    target.pure = function() {
         return {
             id: target.id,
             name: target.name,
@@ -65,25 +22,29 @@ function commonize(target) {
         }
     }
 
-    target.updateData = function (update) {
+    target.updateData = function(update) {
         if (update && typeof update === "object")
             update.keys.forEach(key => {
                 target.data[key] = update.key
             });
     }
 
-    target.setPos = function (x, y) {
+    target.setPos = function(x, y) {
         this.geometry.pos = new Position(x, y)
     }
 
-    target.init = function () {
+    target.init = function() {
         target.id = makeId(5)
         return target
     }
 
     target.dom = null
-    target.setDom = function (dom) {
+    target.setDom = function(dom) {
         this.dom = dom
+    }
+
+    target.getName = function() {
+        return this.name || this.info.name
     }
 }
 
@@ -153,7 +114,7 @@ export class ImageBlock {
 }
 
 export class LatexBlock {
-    info = new BlockInfo("latex", "Latex方塊", "#ffc400", "image")
+    info = new BlockInfo("latex", "Latex方塊", "#00a808", "image")
     constructor(id, name, geometry, data) {
         this.data = {};
         this.id = id;
@@ -252,6 +213,7 @@ function save() {
 const castMap = {
     text: TextBlock,
     image: ImageBlock,
+    latex: LatexBlock,
 }
 
 function specify(raw) {

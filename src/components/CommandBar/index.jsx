@@ -83,6 +83,8 @@ export function CommandBar() {
                     ).init())
             }
                 break
+
+            default: break
         }
     }
 
