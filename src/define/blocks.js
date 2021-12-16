@@ -1,5 +1,5 @@
 import { makeAutoObservable } from "mobx"
-import { makeId, makeSimpleAutoObservable, Position } from "./basic";
+import { makeId, Position } from "./basic";
 
 export class BlockInfo {
     constructor(typename, name, color, icon) {
@@ -12,7 +12,7 @@ export class BlockInfo {
 
 function commonize(target) {
     target.type = target.info.typename
-    target.pure = function() {
+    target.pure = function () {
         return {
             id: target.id,
             name: target.name,
@@ -22,28 +22,28 @@ function commonize(target) {
         }
     }
 
-    target.updateData = function(update) {
+    target.updateData = function (update) {
         if (update && typeof update === "object")
             update.keys.forEach(key => {
                 target.data[key] = update.key
             });
     }
 
-    target.setPos = function(x, y) {
+    target.setPos = function (x, y) {
         this.geometry.pos = new Position(x, y)
     }
 
-    target.init = function() {
+    target.init = function () {
         target.id = makeId(5)
         return target
     }
 
     target.dom = null
-    target.setDom = function(dom) {
+    target.setDom = function (dom) {
         this.dom = dom
     }
 
-    target.getName = function() {
+    target.getName = function () {
         return this.name || this.info.name
     }
 }
@@ -73,7 +73,7 @@ export class TextBlock {
         this.data.text = text
     }
     paste(pastingObject) {
-        if (pastingObject.type == "text") {
+        if (pastingObject.type === "text") {
             this.setText(pastingObject.text)
         }
     }
@@ -108,7 +108,7 @@ export class ImageBlock {
         this.data.width = width
     }
     paste(pastingObject) {
-        if (pastingObject.type = "image")
+        if (pastingObject.type === "image")
             this.setSrc(URL.createObjectURL(pastingObject.file))
     }
 }
@@ -138,7 +138,7 @@ export class LatexBlock {
         this.data.code = code
     }
     paste(pastingObject) {
-        if (pastingObject.type = "text")
+        if (pastingObject.type === "text")
             this.setCode(pastingObject.text)
     }
 }
@@ -194,7 +194,7 @@ export class BlocksHolder {
     }
 
     sendToFront(id) {
-        this.ids = [...this.ids.filter((d) => d != id), id]
+        this.ids = [...this.ids.filter((d) => d !== id), id]
     }
 
     new(model) {

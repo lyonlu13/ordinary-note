@@ -64,7 +64,8 @@ const Tag = styled.div`
 const blocksHolder = BlocksHolder.getInstance()
 
 
-const WorkSpace = observer(function ({ offsetX, offsetY, zoom, ids, zooming, selectedBlock, draggingBlock }) {
+const WorkSpace = observer(function ({ offsetX, offsetY, zoom, ids, zooming, selectedBlock, draggingBlock, resizingBlock
+}) {
 
   return <>
     {ids.map((id) => {
@@ -89,17 +90,26 @@ function App() {
 
   const [offsetX, setOffsetX] = useState(500);
   const [offsetY, setOffsetY] = useState(100);
+
+  const [gapX, setGapX] = useState(0);
+  const [gapY, setGapY] = useState(0);
+
   const [zoom, setZoom] = useState(1);
   const [isHold, setHold] = useState(false);
 
   const [space, setSpace] = useState(false);
 
   const [selectedBlocks, setSelectedBlocks] = useState([]);
+
+
+  const dragOffset = useRef({})
   const [isDragging, setDragging] = useState(false);
+
+  const resizeOffset = useRef(null)
+  const [isResizing, setResizing] = useState(false);
 
   const originOffset = useRef({ x: 0, y: 0 })
   const originMouse = useRef({ x: 0, y: 0 })
-  const dragOffset = useRef({})
 
   function selected(target) {
     if (target !== undefined)
@@ -123,13 +133,26 @@ function App() {
     return isDrag || isDragging
   }
 
+  function resizing(isResize) {
+    if (isResize) {
+      dragOffset.current = {
+        width: selectedBlocks[0].data.width,
+        x: selectedBlocks[0].dom.getBoundingClientRect().left - mouseX,
+        y: selectedBlocks[0].dom.getBoundingClientRect().top - mouseY
+      }
+    }
+
+    if (isResize !== undefined)
+      setResizing(isResize)
+    return isResize || isResizing
+  }
+
   function mouseMove(e) {
     if (isHold) {
       window.requestAnimationFrame(() => {
         setOffsetX(originOffset.current.x - (originMouse.current.x - e.clientX))
         setOffsetY(originOffset.current.y - (originMouse.current.y - e.clientY))
       });
-
     }
   }
 
@@ -149,20 +172,20 @@ function App() {
       if (zoom > 0.5) {
         let after = zoom - 0.1
 
-        // let gapX = e.clientX * after - e.clientX * zoom
-        // let gapY = e.clientY * after - e.clientY * zoom
-        // setOffsetX(offsetX - gapX)
-        // setOffsetY(offsetY - gapY)
+        // let X = e.clientX * after - e.clientX * zoom
+        // let Y = e.clientY * after - e.clientY * zoom
+        // setGapX(gapX - X)
+        // setGapY(gapY - Y)
         setZoom(after)
       }
     } else {
       if (zoom < 2) {
         let after = zoom + 0.1
 
-        // let gapX = e.clientX * after - e.clientX * zoom
-        // let gapY = e.clientY * after - e.clientY * zoom
-        // setOffsetX(offsetX - gapX)
-        // setOffsetY(offsetY - gapY)
+        // let X = e.clientX * after - e.clientX * zoom
+        // let Y = e.clientY * after - e.clientY * zoom
+        // setGapX(gapX - X)
+        // setGapY(gapY - Y)
         setZoom(after)
       }
     }
@@ -176,6 +199,7 @@ function App() {
       case "image":
         blocksHolder.new(new ImageBlock(null, pastingObject.file.name, { pos: { x: 0, y: 0 } }, { src: URL.createObjectURL(pastingObject.file), width: 300 }).init())
         break
+      default:
     }
   }
 
@@ -226,6 +250,14 @@ function App() {
             (e.clientY + dragOffset.current[block.id].y - offsetY) / zoom)
         })
       }
+      if (isResizing) {
+        alert(isResizing)
+        const block = selectedBlocks[0]
+        block.setWidth((
+          e.clientX + dragOffset.current.x - offsetX) / zoom,
+          (e.clientY + dragOffset.current.y - offsetY) / zoom)
+
+      }
     }
 
     document.onmouseup = () => {
@@ -254,15 +286,16 @@ function App() {
 
   return (
     <>
-      <BackPatten type="grid" offsetX={offsetX} offsetY={offsetY} option={{ size: 30 * zoom, groupSize: 20 }} />
+      <BackPatten type="grid" offsetX={offsetX - gapX} offsetY={offsetY - gapY} option={{ size: 30 * zoom, groupSize: 20 }} />
       <WorkSpace
         zooming={zooming}
-        offsetX={offsetX}
-        offsetY={offsetY}
+        offsetX={offsetX - gapX}
+        offsetY={offsetY - gapY}
         zoom={zoom}
         ids={blocksHolder.ids}
         selectedBlock={selected}
         draggingBlock={dragging}
+        resizingBlock={resizing}
       />
       <Touch
         onMouseDown={mouseDown}

@@ -1,5 +1,3 @@
-import { makeAutoObservable } from "mobx"
-
 export class Position {
     constructor(x, y) {
         this.x = x;
