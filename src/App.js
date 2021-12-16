@@ -373,8 +373,6 @@ function App() {
           <InfoLine>
             <Tag bgColor="#006823"><MdZoomOutMap /> Zoom</Tag>{Math.round(zoom * 100)}%
           </InfoLine>
-          {isResizing ? 1 : 0}
-          {selectedBlocks?.id}
         </Display>
         <Display
           style={{

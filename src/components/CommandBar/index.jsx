@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { useState, useEffect, useRef } from 'react';
-import { BlocksHolder, TextBlock } from 'define/blocks';
+import { ArrayBlock, BlocksHolder, TextBlock } from 'define/blocks';
 import { LatexBlock } from './../../define/blocks';
 
 const blocksHolder = BlocksHolder.getInstance()
@@ -67,8 +67,8 @@ export function CommandBar() {
                             text: arg
                         }
                     ).init())
-            }
                 break
+            }
             case "latex": {
                 parts.splice(0, 1)
                 let arg = parts.join(" ") || "LaTeX"
@@ -82,9 +82,24 @@ export function CommandBar() {
                             code: arg
                         }
                     ).init())
-            }
                 break
+            }
+            case "array": {
+                parts.splice(0, 1)
+                let arg = parts.join(" ") || "[]"
+                try {
+                    const obj = JSON.parse(arg)
+                    blocksHolder.new(new ArrayBlock("",
+                        "",
+                        { pos: { x: 0, y: 0 } },
+                        { array: Array.isArray(obj) ? obj : obj.keys.map((k) => obj[k]) }
+                    ).init())
+                    break
+                } catch (e) {
+                    console.log(e);
+                }
 
+            }
             default: break
         }
     }

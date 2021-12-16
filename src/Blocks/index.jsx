@@ -3,17 +3,19 @@ import { observer } from 'mobx-react-lite';
 import { RiToolsFill } from "react-icons/ri";
 
 import styled from 'styled-components';
+import { useRef, useEffect } from 'react';
 import Text from './Text';
 import Image from './Image';
-import { useRef, useEffect } from 'react';
 import Latex from 'Blocks/Latex';
+import ArrayB from './Array';
 
 const blocksHolder = BlocksHolder.getInstance()
 
 const ComponentsCast = {
     text: Text,
     image: Image,
-    latex: Latex
+    latex: Latex,
+    array: ArrayB
 }
 
 export default observer(function Block({ offsetX, offsetY, zoom, id, selectedBlock, draggingBlock, resizingBlock }) {

@@ -156,6 +156,46 @@ export class LatexBlock {
     }
 }
 
+export class ArrayBlock {
+    info = new BlockInfo("array", "陣列方塊", "#5800fc", "image")
+    constructor(id, name, geometry, data) {
+        this.data = {};
+        this.id = id;
+        this.name = name
+        this.geometry = geometry;
+        this.data = data;
+        commonize(this)
+        makeAutoObservable(this)
+    }
+    new() {
+        this.data.array = [0, 1, 2, 3, 4, 5]
+        return this
+    }
+    value() {
+        return {
+            type: "array",
+            value: this.data.array
+        }
+    }
+    setArray(array) {
+        this.data.array = array
+    }
+    setElement(index, value) {
+        if (this.data.array[index] !== undefined)
+            this.data.array[index] = value
+    }
+    paste(pastingObject) {
+        if (pastingObject.type === "text") {
+            try {
+                const obj = JSON.parse(pastingObject.text)
+                this.setArray(Array.isArray(obj) ? obj : obj.keys.map((k) => obj[k]))
+            } catch {
+
+            }
+        }
+    }
+}
+
 export class BlocksHolder {
     constructor() {
         let local_ids = localStorage.getItem("ids")
@@ -227,6 +267,7 @@ const castMap = {
     text: TextBlock,
     image: ImageBlock,
     latex: LatexBlock,
+    array: ArrayBlock
 }
 
 function specify(raw) {

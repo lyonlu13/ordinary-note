@@ -31,7 +31,7 @@ export default observer(function Latex({ model, isSelected, selectedBlock, dragg
           width: "100%",
           borderRadius: 2,
           backgroundColor: "#f8f8f8",
-          boxShadow: "0 0 1px 0.3px gray",
+          boxShadow: "0 0 2px 0.3px lightgray",
           border: "none"
         }}
         onMouseDown={(e) => { e.stopPropagation() }}
