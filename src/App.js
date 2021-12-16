@@ -69,8 +69,6 @@ const WorkSpace = observer(function ({ offsetX, offsetY, zoom, ids, zooming, sel
 
   return <>
     {ids.map((id) => {
-      console.log(id);
-
       return <Block
         key={id}
         offsetX={offsetX}
@@ -78,7 +76,8 @@ const WorkSpace = observer(function ({ offsetX, offsetY, zoom, ids, zooming, sel
         zoom={zoom}
         id={id}
         selectedBlock={selectedBlock}
-        draggingBlock={draggingBlock} />
+        draggingBlock={draggingBlock}
+        resizingBlock={resizingBlock} />
     })}
   </>
 })
@@ -135,10 +134,9 @@ function App() {
 
   function resizing(isResize) {
     if (isResize) {
-      dragOffset.current = {
+      resizeOffset.current = {
         width: selectedBlocks[0].data.width,
-        x: selectedBlocks[0].dom.getBoundingClientRect().left - mouseX,
-        y: selectedBlocks[0].dom.getBoundingClientRect().top - mouseY
+        x: mouseX,
       }
     }
 
@@ -215,7 +213,6 @@ function App() {
     document.onpaste = (e) => {
       const dT = e.clipboardData || window.clipboardData;
       const file = dT.files[0];
-      console.log(dT);
       if (file) {
         if (file.type.startsWith('image/')) {
           forwardPaste({
@@ -241,6 +238,7 @@ function App() {
     };
 
     document.onmousemove = (e) => {
+
       setMouseX(e.clientX)
       setMouseY(e.clientY)
       if (isDragging) {
@@ -251,18 +249,15 @@ function App() {
         })
       }
       if (isResizing) {
-        alert(isResizing)
         const block = selectedBlocks[0]
-        block.setWidth((
-          e.clientX + dragOffset.current.x - offsetX) / zoom,
-          (e.clientY + dragOffset.current.y - offsetY) / zoom)
-
+        block.setWidth((e.clientX - resizeOffset.current.x) / zoom + resizeOffset.current.width)
       }
     }
 
     document.onmouseup = () => {
       setHold(false)
       dragging(false)
+      resizing(false)
     }
 
     document.onkeydown = (e) => {
@@ -282,7 +277,7 @@ function App() {
     }
 
     document.onwheel = zooming
-  }, [isDragging, selectedBlocks, zoom])
+  }, [isDragging, isResizing, selectedBlocks, zoom])
 
   return (
     <>
@@ -378,6 +373,7 @@ function App() {
           <InfoLine>
             <Tag bgColor="#006823"><MdZoomOutMap /> Zoom</Tag>{Math.round(zoom * 100)}%
           </InfoLine>
+          {isResizing ? 1 : 0}
           {selectedBlocks?.id}
         </Display>
         <Display

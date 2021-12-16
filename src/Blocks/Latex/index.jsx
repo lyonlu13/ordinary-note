@@ -4,12 +4,25 @@ import React, { useRef } from "react"
 import { BlockMath } from 'react-katex';
 import { createPortal } from 'react-dom';
 import TextareaAutosize from 'react-textarea-autosize';
+import { BlocksHolder } from 'define/blocks';
 
-export default observer(function Latex({ model, isSelected }) {
+export default observer(function Latex({ model, isSelected, selectedBlock, draggingBlock }) {
   const ref = useRef(null)
-  return <div style={{ minWidth: 120, minHeight: 40, padding: 10 }}>
-    <BlockMath ref={ref} math={model.data.code} />
-    {isSelected && createPortal(
+  return <div
+    style={{ minWidth: 120, minHeight: 40, padding: 10, color: model.data.code === "" ? "gray" : "black" }}
+    onMouseDown={() => {
+      if (isSelected) {
+        draggingBlock(true)
+        if (selectedBlock().length === 1)
+          BlocksHolder.getInstance().sendToFront(model.id)
+      }
+    }}
+  >
+    <BlockMath
+      ref={ref}
+      math={model.data.code || "LaTeX..."}
+    />
+    {isSelected && selectedBlock().length === 1 && createPortal(
       <TextareaAutosize
         style={{
           outline: "none",
@@ -21,6 +34,8 @@ export default observer(function Latex({ model, isSelected }) {
           boxShadow: "0 0 1px 0.3px gray",
           border: "none"
         }}
+        onMouseDown={(e) => { e.stopPropagation() }}
+        onKeyDown={(e) => { e.stopPropagation() }}
         value={model.data.code}
         onChange={(e) => model.setCode(e.target.value)} />, document.getElementById("attributes"))}
   </div>

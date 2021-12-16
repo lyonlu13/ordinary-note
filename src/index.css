@@ -18,3 +18,7 @@ code {
 .katex-display {
     margin: 0;
 }
+
+iframe{
+    pointer-events: none;
+}

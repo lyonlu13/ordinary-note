@@ -72,6 +72,9 @@ export class TextBlock {
     setText(text) {
         this.data.text = text
     }
+    setFontSize(size) {
+        this.data.fontsize = size
+    }
     paste(pastingObject) {
         if (pastingObject.type === "text") {
             this.setText(pastingObject.text)
@@ -105,16 +108,26 @@ export class ImageBlock {
         this.data.src = src
     }
     setWidth(width) {
-        this.data.width = width
+        if (width >= 100)
+            this.data.width = width
     }
     paste(pastingObject) {
-        if (pastingObject.type === "image")
-            this.setSrc(URL.createObjectURL(pastingObject.file))
+        const me = this
+        if (pastingObject.type === "image") {
+            var reader = new FileReader();
+            reader.readAsDataURL(pastingObject.file);
+            reader.onload = function () {
+                me.setSrc(reader.result)
+            };
+            reader.onerror = function (error) {
+                console.log('Error: ', error);
+            };
+        }
     }
 }
 
 export class LatexBlock {
-    info = new BlockInfo("latex", "Latex方塊", "#00a808", "image")
+    info = new BlockInfo("latex", "LaTeX方塊", "#00a808", "image")
     constructor(id, name, geometry, data) {
         this.data = {};
         this.id = id;

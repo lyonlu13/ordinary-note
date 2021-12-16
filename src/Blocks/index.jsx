@@ -16,9 +16,8 @@ const ComponentsCast = {
     latex: Latex
 }
 
-export default observer(function Block({ offsetX, offsetY, zoom, id, selectedBlock, draggingBlock }) {
+export default observer(function Block({ offsetX, offsetY, zoom, id, selectedBlock, draggingBlock, resizingBlock }) {
     const model = blocksHolder.get(id)
-    console.log(blocksHolder.blocks);
     const isSelected = !!selectedBlock().find((item) => item.id === id)
     const isDragging = draggingBlock() && isSelected
     const ref = useRef(null)
@@ -62,27 +61,32 @@ export default observer(function Block({ offsetX, offsetY, zoom, id, selectedBlo
                     blocksHolder.sendToFront(model.id)
                 draggingBlock(true)
             }}
-            style={displaying(isSelected && !isDragging)}>
+            style={displaying(isSelected && !isDragging, isSelected && isDragging)}>
             {model.name || model.info.name}
         </Label>
         <Outline color={model.info.color} style={{ borderColor: (isSelected ? "" : "#ffffff00") }}>
             {((Component) => {
-                console.log(model);
-                return <Component model={model} draggingBlock={draggingBlock} isSelected={isSelected} selectedBlock={selectedBlock} />
+                return (
+                    <Component
+                        model={model}
+                        draggingBlock={draggingBlock}
+                        isSelected={isSelected}
+                        selectedBlock={selectedBlock}
+                        resizingBlock={resizingBlock} />)
             }
             )(ComponentsCast[model.type])}
         </Outline>
 
-        {<DevLabel style={displaying(isSelected)}>
+        {<DevLabel style={displaying(isSelected && !isDragging)}>
             <RiToolsFill style={{ verticalAlign: 'middle' }} />{id}
         </DevLabel>}
     </BlockBase > : null
 })
 
 
-const displaying = (show) => ({
+const displaying = (show, holdable) => ({
     opacity: show ? 1 : 0,
-    pointerEvents: show ? "auto" : "none",
+    pointerEvents: (show || holdable) ? "auto" : "none",
     transition: "0.3s"
 })
 
@@ -110,6 +114,7 @@ const Label = styled.div`
   cursor: move;
   user-select: none;
   transition:0.3s;
+  z-index:5;
 `
 
 const DevLabel = styled.div`

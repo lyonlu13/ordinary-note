@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import styled from 'styled-components';
-import React, { useRef } from "react"
+import React, { useEffect, useRef } from "react"
 import ContentEditable from 'react-contenteditable';
 
 const TextArea = {
@@ -23,6 +23,13 @@ pointer-events: none;
 
 export default observer(function Text({ model }) {
   const ref = useRef(null)
+
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.el.current.setAttribute("contenteditable", "plaintext-only")
+    }
+  }, [])
+
   return <>
     <ContentEditable
       ref={ref}
@@ -32,7 +39,6 @@ export default observer(function Text({ model }) {
       html={model.data.text}
       onChange={(e) => {
         model.setText(e.target.value)
-        console.log(model);
       }}
       tagName='div'
       style={TextArea}

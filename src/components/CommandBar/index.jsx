@@ -9,6 +9,7 @@ export function CommandBar() {
     const [text, setText] = useState("");
     const [display, setDisplay] = useState([]);
     const triggered = useRef(false)
+
     useEffect(() => {
         const splits = text.split(" ")
         const raw = splits.map((s, k) => {
@@ -70,7 +71,7 @@ export function CommandBar() {
                 break
             case "latex": {
                 parts.splice(0, 1)
-                let arg = parts.join(" ")
+                let arg = parts.join(" ") || "LaTeX"
                 blocksHolder.new(
                     new LatexBlock("",
                         "",
@@ -88,6 +89,7 @@ export function CommandBar() {
         }
     }
 
+
     return <Frame>
         <Input
             spellCheck="false"
@@ -104,6 +106,19 @@ export function CommandBar() {
                     setText("")
                 } else
                     setText(e.target.innerHTML)
+            }}
+            onPaste={(e) => {
+                e.stopPropagation()
+                var pastedText = undefined;
+                if (window.clipboardData && window.clipboardData.getData) { // IE
+                    pastedText = window.clipboardData.getData('Text');
+                } else if (e.clipboardData && e.clipboardData.getData) {
+                    pastedText = e.clipboardData.getData('text/plain');
+                }
+                const processed = pastedText.match(/(\r\n|\n|\r)/gm, "")
+
+                if (processed)
+                    e.preventDefault()
             }}
         >
         </Input>
