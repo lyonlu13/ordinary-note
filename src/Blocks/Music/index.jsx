@@ -27,7 +27,8 @@ const Progress = styled.div`
   overflow: hidden;
   width:100%;
   height:10px;
-  border: red solid 1px;
+  //border: red solid 1px;
+  background-color:#ffeded;
   border-radius: 1000px;;
 `
 const Time = styled.div`
@@ -54,10 +55,13 @@ const PlayNPause = styled.div`
   }
 `
 
+const Space = styled.div`
+  width:30px;
+`
+
 export default observer(function Music({ model, isSelected, selectedBlock, draggingBlock }) {
   const ref = useRef(null)
   const info = useRef(null)
-  const howl = useRef(null)
   const [loading, setLoading] = useState(true)
   const [duration, setDuration] = useState(0)
   const [seek, setSeek] = useState(0)
@@ -74,16 +78,16 @@ export default observer(function Music({ model, isSelected, selectedBlock, dragg
           info.current = res;
           model.setSource({
             url,
-            preload: res.formats[0].url,
-            thumbnail: res.videoDetails.thumbnails[0].url,
+            preload: res.formats[2].url,
+            thumbnail: res.videoDetails.thumbnails[2].url,
             title: res.videoDetails.title,
           })
-          howl.current = new Howl({
+          model.howl = new Howl({
             src: [res.formats[0].url],
             html5: true,
             loop: true,
             onload: () => {
-              setDuration(howl.current.duration())
+              setDuration(model.howl.duration())
               setLoading(false)
             },
             onplay: () => {
@@ -95,38 +99,41 @@ export default observer(function Music({ model, isSelected, selectedBlock, dragg
             preload: "metadata"
           });
 
-          howl.current.play()
-
+          model.howl.play()
+          model.onDelete = () => {
+            if (model.howl)
+              model.howl.stop()
+          }
         })
     }
-
-    doing()
+    if (!model.howl)
+      doing()
   }, [])
 
   useEffect(() => {
     setInterval(() => {
-      if (!howl.current) return
-      setSeek(howl.current.seek())
+      if (!model.howl) return
+      setSeek(model.howl.seek())
     }, 500);
   }, [])
 
   useEffect(() => {
-    if (!howl.current) return
-    howl.current.onplay = () => {
+    if (!model.howl) return
+    model.howl.onplay = () => {
       setPlaying(true)
     }
-    howl.current.onpause = () => {
+    model.howl.onpause = () => {
       setPlaying(false)
     }
   }, [playing])
 
 
   function play() {
-    if (howl.current) {
-      if (howl.current.playing()) {
-        howl.current.pause()
+    if (model.howl) {
+      if (model.howl.playing()) {
+        model.howl.pause()
       } else {
-        howl.current.play()
+        model.howl.play()
       }
     }
   }
@@ -156,7 +163,7 @@ export default observer(function Music({ model, isSelected, selectedBlock, dragg
       </div>
     </Cover>
     <Player>
-      <Marquee gradientWidth={10} >{model.data.source.title}</Marquee>
+      <Marquee gradientWidth={10} >{model.data.source.title}<Space /></Marquee>
       <Time><span>{loading ? "00:00" : formatSec(seek)}</span><span>{loading ? "--:--" : formatSec(duration)}</span></Time>
       <Progress>
         <div style={{
@@ -168,7 +175,7 @@ export default observer(function Music({ model, isSelected, selectedBlock, dragg
         </div>
       </Progress>
       <Controller>
-        <PlayNPause onClick={play}>
+        <PlayNPause onClick={play} style={{ opacity: loading ? 0.5 : 1, cursor: loading ? "auto" : "pointer" }}>
           <BiPlay color="red" style={{ opacity: playing ? 0 : 1 }} />
           <BiPause color="red" style={{ opacity: playing ? 1 : 0 }} />
         </PlayNPause>

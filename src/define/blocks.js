@@ -210,9 +210,9 @@ export class MusicBlock {
     new() {
         this.data.type = "yt"   //yt, url
         this.data.source = {
-            url:"https://www.youtube.com/watch?v=8MG--WuNW1Y",
-            preload:"",
-            thumbnail:"https://i.ytimg.com/vi/8MG--WuNW1Y/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBIlMzA-QLc5PZl1T1x1Uaeh-xAQA"
+            url: "https://www.youtube.com/watch?v=8MG--WuNW1Y",
+            preload: "",
+            thumbnail: "https://i.ytimg.com/vi/8MG--WuNW1Y/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBIlMzA-QLc5PZl1T1x1Uaeh-xAQA"
         }
         return this
     }
@@ -275,6 +275,9 @@ export class BlocksHolder {
     }
     remove(models) {
         models.forEach(model => {
+            if (model.onDelete) {
+                model.onDelete()
+            }
             this.ids = this.ids.filter((d) => d !== model.id)
             delete this.blocks[model.id]
         });
