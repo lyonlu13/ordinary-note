@@ -61,50 +61,64 @@ const Space = styled.div`
 
 export default observer(function Music({ model, isSelected, selectedBlock, draggingBlock }) {
   const ref = useRef(null)
-  const info = useRef(null)
   const [loading, setLoading] = useState(true)
   const [duration, setDuration] = useState(0)
   const [seek, setSeek] = useState(0)
   const [playing, setPlaying] = useState(false)
 
   useEffect(() => {
-    async function doing() {
-      const url = model.data.source.url
-      fetch(`https://7rs07iiiz2.execute-api.ap-northeast-1.amazonaws.com/default/yt-dl?url=${url}&audio=true`)
-        .then((res) => {
-          return res.json();
-        }).then((res) => {
-          Howler.autoUnlock = true
-          info.current = res;
-          model.setSource({
-            url,
-            preload: res.formats[2].url,
-            thumbnail: res.videoDetails.thumbnails[2].url,
-            title: res.videoDetails.title,
-          })
-          model.howl = new Howl({
-            src: [res.formats[0].url],
-            html5: true,
-            loop: true,
-            onload: () => {
-              setDuration(model.howl.duration())
-              setLoading(false)
-            },
-            onplay: () => {
-              setPlaying(true)
-            },
-            onpause: () => {
-              setPlaying(false)
-            },
-            preload: "metadata"
-          });
 
-          model.howl.play()
-          model.onDelete = () => {
-            if (model.howl)
-              model.howl.stop()
+    function initHowl(url, fallback) {
+      model.howl = new Howl({
+        src: [url],
+        html5: true,
+        loop: true,
+        onload: () => {
+          setDuration(model.howl.duration())
+          setLoading(false)
+        },
+        onplay: () => {
+          setPlaying(true)
+        },
+        onpause: () => {
+          setPlaying(false)
+        },
+        onloaderror: (id, e) => {
+          if (id) {
+            console.log(id, e);
+            fallback()
           }
-        })
+        },
+        preload: "metadata"
+      });
+
+      model.howl.play()
+      model.onDelete = () => {
+        if (model.howl)
+          model.howl.stop()
+      }
+    }
+
+    async function doing() {
+
+      Howler.autoUnlock = true
+      const url = model.data.source.url
+      initHowl(model.data.source.preload, () => {
+        fetch(`https://7rs07iiiz2.execute-api.ap-northeast-1.amazonaws.com/default/yt-dl?url=${url}&audio=true`)
+          .then((res) => {
+            return res.json();
+          }).then((res) => {
+            model.setSource({
+              url,
+              preload: res.formats[2].url,
+              thumbnail: res.videoDetails.thumbnails[2].url,
+              title: res.videoDetails.title,
+            })
+            initHowl(res.formats[2].url)
+          })
+      })
+
+
     }
     if (!model.howl)
       doing()
@@ -163,7 +177,7 @@ export default observer(function Music({ model, isSelected, selectedBlock, dragg
       </div>
     </Cover>
     <Player>
-      <Marquee gradientWidth={10} >{model.data.source.title}<Space /></Marquee>
+      <Marquee gradientWidth={10} >{loading ? "載入音樂中" : model.data.source.title}<Space /></Marquee>
       <Time><span>{loading ? "00:00" : formatSec(seek)}</span><span>{loading ? "--:--" : formatSec(duration)}</span></Time>
       <Progress>
         <div style={{
