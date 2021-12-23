@@ -59,6 +59,7 @@ export default observer(function Array({ model, isSelected }) {
     <div style={{ display: "flex", gap: 5, padding: 2 }}>
       {model.data.array.map((element, index) => (
         <Input
+        key={index}
           value={element}
           onChange={(e) => {
             model.setElement(index, e.target.value)

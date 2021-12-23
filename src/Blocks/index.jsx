@@ -6,8 +6,9 @@ import styled from 'styled-components';
 import { useRef, useEffect } from 'react';
 import Text from './Text';
 import Image from './Image';
-import Latex from 'Blocks/Latex';
+import Latex from './Latex';
 import ArrayB from './Array';
+import Music from './Music';
 
 const blocksHolder = BlocksHolder.getInstance()
 
@@ -15,7 +16,8 @@ const ComponentsCast = {
     text: Text,
     image: Image,
     latex: Latex,
-    array: ArrayB
+    array: ArrayB,
+    music: Music,
 }
 
 export default observer(function Block({ offsetX, offsetY, zoom, id, selectedBlock, draggingBlock, resizingBlock }) {

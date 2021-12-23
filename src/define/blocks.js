@@ -208,21 +208,29 @@ export class MusicBlock {
         makeAutoObservable(this)
     }
     new() {
-        this.data.array = [0, 1, 2, 3, 4, 5]
+        this.data.type = "yt"   //yt, url
+        this.data.source = {
+            url:"https://www.youtube.com/watch?v=8MG--WuNW1Y",
+            preload:"",
+            thumbnail:"https://i.ytimg.com/vi/8MG--WuNW1Y/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBIlMzA-QLc5PZl1T1x1Uaeh-xAQA"
+        }
         return this
     }
     value() {
         return {
-            type: "array",
-            value: this.data.array
+            type: "url",
+            value: this.data.source
         }
     }
-    setSrc(src) {
-        this.data.src = src
+    setType(type) {
+        this.data.type = type
+    }
+    setSource(source) {
+        this.data.source = source
     }
     paste(pastingObject) {
         if (pastingObject.type === "text") {
-            this.setSrc(pastingObject.value)
+            // Todo: detect if this text a valid url
         }
     }
 }
@@ -298,7 +306,8 @@ const castMap = {
     text: TextBlock,
     image: ImageBlock,
     latex: LatexBlock,
-    array: ArrayBlock
+    array: ArrayBlock,
+    music: MusicBlock
 }
 
 function specify(raw) {

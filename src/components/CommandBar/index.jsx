@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { useState, useEffect, useRef } from 'react';
-import { ArrayBlock, BlocksHolder, TextBlock } from 'define/blocks';
+import { ArrayBlock, BlocksHolder, MusicBlock, TextBlock } from 'define/blocks';
 import { LatexBlock } from './../../define/blocks';
 
 const blocksHolder = BlocksHolder.getInstance()
@@ -73,7 +73,7 @@ export function CommandBar() {
                 parts.splice(0, 1)
                 let arg = parts.join(" ") || "LaTeX"
                 blocksHolder.new(
-                    new LatexBlock("",
+                    new LatexBlock(null,
                         "",
                         {
                             pos: { x: 0, y: 0 }
@@ -94,11 +94,30 @@ export function CommandBar() {
                         { pos: { x: 0, y: 0 } },
                         { array: Array.isArray(obj) ? obj : obj.keys.map((k) => obj[k]) }
                     ).init())
-                    break
+
                 } catch (e) {
                     console.log(e);
                 }
-
+                break
+            }
+            case "youtube":
+            case "yt": {
+                parts.splice(0, 1)
+                let arg = parts.join(" ")
+                blocksHolder.new(
+                    new MusicBlock(null,
+                        "",
+                        {
+                            pos: { x: 0, y: 0 }
+                        },
+                        {
+                            type: "yt",
+                            source: {
+                                url: arg
+                            }
+                        }
+                    ).init())
+                break
             }
             default: break
         }

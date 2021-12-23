@@ -80,17 +80,6 @@ const WorkSpace = observer(function ({ offsetX, offsetY, zoom, ids, zooming, sel
   </>
 })
 
-async function doing() {
-  const url = "https://www.youtube.com/watch?v=8MG--WuNW1Y"
-  fetch(`http://localhost:8081/dl?url=${url}`)
-    .then((res) => {
-      return res.text();
-    }).then((res) => {
-      document.getElementById("test").src = res
-    })
-}
-
-doing()
 
 function App() {
   const [mouseX, setMouseX] = useState(0);
