@@ -2,9 +2,7 @@ import styled from 'styled-components';
 import BackPatten from "components/BackPatten";
 import { useEffect, useRef, useState } from 'react';
 import 'katex/dist/katex.min.css';
-import { BlockMath } from 'react-katex';
 import { observer } from "mobx-react-lite" // Or "mobx-react".
-import { Test } from 'define/test';
 import { BlocksHolder, ImageBlock, TextBlock } from 'define/blocks';
 import Block from 'Blocks';
 import { BiCurrentLocation } from "react-icons/bi";
@@ -82,6 +80,17 @@ const WorkSpace = observer(function ({ offsetX, offsetY, zoom, ids, zooming, sel
   </>
 })
 
+async function doing() {
+  const url = "https://www.youtube.com/watch?v=8MG--WuNW1Y"
+  fetch(`http://localhost:8081/dl?url=${url}`)
+    .then((res) => {
+      return res.text();
+    }).then((res) => {
+      document.getElementById("test").src = res
+    })
+}
+
+doing()
 
 function App() {
   const [mouseX, setMouseX] = useState(0);

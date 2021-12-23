@@ -196,6 +196,37 @@ export class ArrayBlock {
     }
 }
 
+export class MusicBlock {
+    info = new BlockInfo("music", "音樂方塊", "#FC0000", "music")
+    constructor(id, name, geometry, data) {
+        this.data = {};
+        this.id = id;
+        this.name = name
+        this.geometry = geometry;
+        this.data = data;
+        commonize(this)
+        makeAutoObservable(this)
+    }
+    new() {
+        this.data.array = [0, 1, 2, 3, 4, 5]
+        return this
+    }
+    value() {
+        return {
+            type: "array",
+            value: this.data.array
+        }
+    }
+    setSrc(src) {
+        this.data.src = src
+    }
+    paste(pastingObject) {
+        if (pastingObject.type === "text") {
+            this.setSrc(pastingObject.value)
+        }
+    }
+}
+
 export class BlocksHolder {
     constructor() {
         let local_ids = localStorage.getItem("ids")
