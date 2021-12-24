@@ -46,7 +46,7 @@ export default observer(function Text({ model }) {
         e.stopPropagation()
       }}
     />
-    {model.data.text == "" &&
+    {model.data.text === "" &&
       <Placeholder>
         Text here...
       </Placeholder>}

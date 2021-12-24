@@ -1,6 +1,7 @@
 import { makeAutoObservable } from "mobx"
-import { makeId, Position } from "./basic";
-
+import { Position } from "./basic";
+import { makeId } from "utils/generate";
+import _ from "lodash";
 export class BlockInfo {
     constructor(typename, name, color, icon) {
         this.typename = typename;
@@ -22,6 +23,11 @@ function commonize(target) {
         }
     }
 
+    target.setData = function (data) {
+        target.data = _.cloneDeep(data)
+        return target
+    }
+
     target.updateData = function (update) {
         if (update && typeof update === "object")
             update.keys.forEach(key => {
@@ -31,6 +37,7 @@ function commonize(target) {
 
     target.setPos = function (x, y) {
         this.geometry.pos = new Position(x, y)
+        return target
     }
 
     target.init = function () {
@@ -47,14 +54,13 @@ function commonize(target) {
         return this.name || this.info.name
     }
 }
-
 export class TextBlock {
     info = new BlockInfo("text", "文字方塊", "#00a2ff", "text")
     constructor(id, name, geometry, data) {
         this.data = {};
         this.id = id;
         this.name = name
-        this.geometry = geometry;
+        this.geometry = geometry || { pos: new Position(0, 0) };
         this.data = data;
         commonize(this)
         makeAutoObservable(this)
@@ -88,7 +94,7 @@ export class ImageBlock {
         this.data = {};
         this.id = id;
         this.name = name
-        this.geometry = geometry;
+        this.geometry = geometry || { pos: new Position(0, 0) };
         this.data = data;
         commonize(this)
         makeAutoObservable(this)
@@ -132,7 +138,8 @@ export class LatexBlock {
         this.data = {};
         this.id = id;
         this.name = name
-        this.geometry = geometry;
+
+        this.geometry = geometry || { pos: new Position(0, 0) };
         this.data = data;
         commonize(this)
         makeAutoObservable(this)
@@ -155,14 +162,14 @@ export class LatexBlock {
             this.setCode(pastingObject.text)
     }
 }
-
 export class ArrayBlock {
     info = new BlockInfo("array", "陣列方塊", "#5800fc", "image")
     constructor(id, name, geometry, data) {
         this.data = {};
         this.id = id;
         this.name = name
-        this.geometry = geometry;
+
+        this.geometry = geometry || { pos: new Position(0, 0) };
         this.data = data;
         commonize(this)
         makeAutoObservable(this)
@@ -195,14 +202,14 @@ export class ArrayBlock {
         }
     }
 }
-
 export class MusicBlock {
     info = new BlockInfo("music", "音樂方塊", "#FC0000", "music")
     constructor(id, name, geometry, data) {
         this.data = {};
         this.id = id;
         this.name = name
-        this.geometry = geometry;
+
+        this.geometry = geometry || { pos: new Position(0, 0) };
         this.data = data;
         commonize(this)
         makeAutoObservable(this)
@@ -233,6 +240,37 @@ export class MusicBlock {
             // Todo: detect if this text a valid url
         }
     }
+}
+
+
+MusicBlock.createByYt = (url, pos) => {
+    return new MusicBlock().init().setData({
+        type: "yt",
+        source: {
+            url
+        }
+    })
+    // return new MusicBlock(null,
+    //     "",
+    //     {
+    //         pos: pos || { x: 0, y: 0 }
+    //     },
+    //     {
+    //         type: "yt",
+    //         source: {
+    //             url
+    //         }
+    //     }
+    // ).init()
+}
+
+MusicBlock.createByUrl = (url, pos) => {
+    return new MusicBlock().init().setData({
+        type: "yt",
+        source: {
+            url
+        }
+    })
 }
 
 export class BlocksHolder {

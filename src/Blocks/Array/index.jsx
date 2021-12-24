@@ -1,8 +1,7 @@
 import { observer } from "mobx-react-lite"
 import styled from "styled-components"
-import React, { useEffect, useRef } from "react"
+import React, { useRef } from "react"
 import { FaPlus, FaTimes, FaGripLines } from "react-icons/fa"
-import { Position } from "./../../define/basic"
 
 const InputBase = styled.div`
   position: relative;
@@ -53,13 +52,13 @@ const RemoveBtn = styled.span`
 `
 
 export default observer(function Array({ model, isSelected }) {
-  const ref = useRef(null)
+  // const ref = useRef(null)
 
   return (
     <div style={{ display: "flex", gap: 5, padding: 2 }}>
       {model.data.array.map((element, index) => (
         <Input
-        key={index}
+          key={index}
           value={element}
           onChange={(e) => {
             model.setElement(index, e.target.value)

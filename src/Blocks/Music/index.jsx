@@ -1,12 +1,12 @@
 import { observer } from "mobx-react-lite"
 import styled from "styled-components"
 import React, { useEffect, useRef, useState } from "react"
-import { BiPlay, BiPause } from "react-icons/bi"
-import { Position } from "define/basic"
+import { BiPlay, BiPause, } from "react-icons/bi"
+import { IoRepeatSharp } from "react-icons/io5"
 import Marquee from "react-fast-marquee";
 import { Howl, Howler } from 'howler';
 import { BlocksHolder } from "define/blocks"
-import { formatSec } from "utils.js"
+import { formatSec } from "utils/format.js"
 
 const Cover = styled.div`
   border-radius:1000px 0 0  1000px;
@@ -26,8 +26,7 @@ const Player = styled.div`
 const Progress = styled.div`
   overflow: hidden;
   width:100%;
-  height:10px;
-  //border: red solid 1px;
+  height:5px;
   background-color:#ffeded;
   border-radius: 1000px;;
 `
@@ -44,14 +43,17 @@ const Controller = styled.div`
   padding:5px;
 `
 
-const PlayNPause = styled.div`
+const Toggle = styled.div`
+  position: relative;
   width:30px;
   height:30px;
   padding:0;
   & svg{
     position: absolute;
-    font-size:30px;
     transition:0.3s;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
   }
 `
 
@@ -60,11 +62,12 @@ const Space = styled.div`
 `
 
 export default observer(function Music({ model, isSelected, selectedBlock, draggingBlock }) {
-  const ref = useRef(null)
+  // const ref = useRef(null)
   const [loading, setLoading] = useState(true)
   const [duration, setDuration] = useState(0)
   const [seek, setSeek] = useState(0)
   const [playing, setPlaying] = useState(false)
+  const [loop, setLoop] = useState(false)
 
   useEffect(() => {
 
@@ -72,7 +75,6 @@ export default observer(function Music({ model, isSelected, selectedBlock, dragg
       model.howl = new Howl({
         src: [url],
         html5: true,
-        loop: true,
         onload: () => {
           setDuration(model.howl.duration())
           setLoading(false)
@@ -87,6 +89,11 @@ export default observer(function Music({ model, isSelected, selectedBlock, dragg
           if (id) {
             console.log(id, e);
             fallback()
+          }
+        },
+        onend: () => {
+          if (!model.howl.loop()) {
+            setPlaying(false)
           }
         },
         preload: "metadata"
@@ -110,7 +117,7 @@ export default observer(function Music({ model, isSelected, selectedBlock, dragg
           }).then((res) => {
             model.setSource({
               url,
-              preload: res.formats[2].url,
+              preload: res.formats[0].url,
               thumbnail: res.videoDetails.thumbnails[2].url,
               title: res.videoDetails.title,
             })
@@ -122,14 +129,17 @@ export default observer(function Music({ model, isSelected, selectedBlock, dragg
     }
     if (!model.howl)
       doing()
-  }, [])
+  }, [model])
 
   useEffect(() => {
-    setInterval(() => {
+    const id = setInterval(() => {
       if (!model.howl) return
       setSeek(model.howl.seek())
     }, 500);
-  }, [])
+    return () => {
+      clearInterval(id)
+    }
+  }, [model.howl])
 
   useEffect(() => {
     if (!model.howl) return
@@ -139,16 +149,27 @@ export default observer(function Music({ model, isSelected, selectedBlock, dragg
     model.howl.onpause = () => {
       setPlaying(false)
     }
-  }, [playing])
+  }, [model.howl, playing])
 
 
-  function play() {
+  function playToggle() {
     if (model.howl) {
       if (model.howl.playing()) {
         model.howl.pause()
       } else {
         model.howl.play()
       }
+    }
+  }
+
+  function loopToggle() {
+    if (model.howl) {
+      if (model.howl.loop()) {
+        model.howl.loop(false)
+      } else {
+        model.howl.loop(true)
+      }
+      setLoop(model.howl.loop())
     }
   }
 
@@ -183,17 +204,31 @@ export default observer(function Music({ model, isSelected, selectedBlock, dragg
         <div style={{
           height: 10,
           width: loading ? "0" : seek / duration * 100 + "%",
-          backgroundColor: "red"
+          backgroundColor: "red",
         }}>
 
         </div>
       </Progress>
       <Controller>
-        <PlayNPause onClick={play} style={{ opacity: loading ? 0.5 : 1, cursor: loading ? "auto" : "pointer" }}>
-          <BiPlay color="red" style={{ opacity: playing ? 0 : 1 }} />
-          <BiPause color="red" style={{ opacity: playing ? 1 : 0 }} />
-        </PlayNPause>
+        <Toggle
+          onClick={playToggle}
+          style={{
+            opacity: loading ? 0.5 : 1,
+            cursor: loading ? "auto" : "pointer",
+            pointerEvents: loading ? "none" : "auto"
+          }}>
+          <BiPlay color="red"
+            size={30} style={{ opacity: playing ? 0 : 1 }} />
+          <BiPause color="red"
+            size={30} style={{ opacity: playing ? 1 : 0 }} />
+        </Toggle>
+        <Toggle style={{ opacity: loop ? 1 : 0.3, cursor: loading ? "auto" : "pointer" }} >
+          <IoRepeatSharp
+            onClick={loopToggle}
+            color="red"
+            size={25} />
+        </Toggle>
       </Controller>
     </Player>
-  </div>
+  </div >
 })

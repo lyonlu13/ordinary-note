@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import React, { useState } from "react"
+import React from "react"
 import { BlocksHolder } from 'define/blocks';
 import { FaArrowsAltH } from "react-icons/fa"
 import styled from 'styled-components';
@@ -23,7 +23,6 @@ const Float = styled.span`
 `
 
 export default observer(function Image({ draggingBlock, isSelected, selectedBlock, resizingBlock, model }) {
-  const [hover, setHover] = useState(false)
   return <div
     onMouseDown={() => {
       if (isSelected) {
@@ -51,8 +50,6 @@ export default observer(function Image({ draggingBlock, isSelected, selectedBloc
         };
       }
     }}
-    onMouseEnter={() => setHover(true)}
-    onMouseLeave={() => setHover(false)}
   >
     <img
       style={{ display: "block" }}

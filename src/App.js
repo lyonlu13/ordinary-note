@@ -3,12 +3,14 @@ import BackPatten from "components/BackPatten";
 import { useEffect, useRef, useState } from 'react';
 import 'katex/dist/katex.min.css';
 import { observer } from "mobx-react-lite" // Or "mobx-react".
-import { BlocksHolder, ImageBlock, TextBlock } from 'define/blocks';
+import { BlocksHolder, ImageBlock, MusicBlock, TextBlock } from 'define/blocks';
 import Block from 'Blocks';
 import { BiCurrentLocation } from "react-icons/bi";
 import { FaMousePointer } from "react-icons/fa";
 import { MdZoomOutMap } from "react-icons/md";
 import { CommandBar } from './components/CommandBar/index';
+import { urlCheck } from 'utils/check';
+import when from 'utils/flow';
 
 const Touch = styled.div`
   position:absolute;
@@ -80,6 +82,7 @@ const WorkSpace = observer(function ({ offsetX, offsetY, zoom, ids, zooming, sel
   </>
 })
 
+window.urlCheck = urlCheck
 
 function App() {
   const [mouseX, setMouseX] = useState(0);
@@ -88,8 +91,8 @@ function App() {
   const [offsetX, setOffsetX] = useState(500);
   const [offsetY, setOffsetY] = useState(100);
 
-  const [gapX, setGapX] = useState(0);
-  const [gapY, setGapY] = useState(0);
+  // const [gapX, setGapX] = useState(0);
+  // const [gapY, setGapY] = useState(0);
 
   const [zoom, setZoom] = useState(1);
   const [isHold, setHold] = useState(false);
@@ -193,13 +196,26 @@ function App() {
         blocksHolder.new(new TextBlock(null, "新文字方塊", { pos: { x: 0, y: 0 } }, { text: pastingObject.text }).init())
         break
       case "image":
-        blocksHolder.new(new ImageBlock(null, pastingObject.file.name, { pos: { x: 0, y: 0 } }, { src: URL.createObjectURL(pastingObject.file), width: 300 }).init())
+        blocksHolder.new(new ImageBlock(null,
+          pastingObject.file?.name || "",
+          { pos: { x: 0, y: 0 } },
+          {
+            src: pastingObject.file
+              ? URL.createObjectURL(pastingObject.file)
+              : pastingObject.url,
+            width: 300
+          }).init())
+        break
+      case "audio":
+        if (pastingObject.yt)
+          blocksHolder.new(MusicBlock.createByYt(pastingObject.yt))
         break
       default:
     }
   }
 
   function forwardPaste(pastingObject) {
+    console.log(pastingObject);
     if (selectedBlocks.length === 1) {
       selectedBlocks[0].paste(pastingObject)
     } else {
@@ -227,10 +243,32 @@ function App() {
       } else {
         if (dT.items[0])
           dT.items[0].getAsString((txt) => {
-            forwardPaste({
-              type: "text",
-              text: txt
+            urlCheck(txt).then((res) => {
+              console.log(res);
+              if (res) {
+                when(res)
+                  .case("image", () => forwardPaste({
+                    type: "image",
+                    url: txt
+                  }))
+                  .case("audio", () => forwardPaste({
+                    type: "audio",
+                    url: txt
+                  }))
+                  .case("yt", () => forwardPaste({
+                    type: "audio",
+                    yt: txt
+                  }))
+                  .else(() => forwardPaste({
+                    type: "text",
+                    text: txt
+                  }))
+              } else forwardPaste({
+                type: "text",
+                text: txt
+              })
             })
+
           })
       }
     };
@@ -279,11 +317,11 @@ function App() {
 
   return (
     <>
-      <BackPatten type="grid" offsetX={offsetX - gapX} offsetY={offsetY - gapY} option={{ size: 30 * zoom, groupSize: 20 }} />
+      <BackPatten type="grid" offsetX={offsetX} offsetY={offsetY} option={{ size: 30 * zoom, groupSize: 20 }} />
       <WorkSpace
         zooming={zooming}
-        offsetX={offsetX - gapX}
-        offsetY={offsetY - gapY}
+        offsetX={offsetX}
+        offsetY={offsetY}
         zoom={zoom}
         ids={blocksHolder.ids}
         selectedBlock={selected}

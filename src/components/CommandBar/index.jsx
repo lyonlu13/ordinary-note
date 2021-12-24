@@ -104,19 +104,7 @@ export function CommandBar() {
             case "yt": {
                 parts.splice(0, 1)
                 let arg = parts.join(" ")
-                blocksHolder.new(
-                    new MusicBlock(null,
-                        "",
-                        {
-                            pos: { x: 0, y: 0 }
-                        },
-                        {
-                            type: "yt",
-                            source: {
-                                url: arg
-                            }
-                        }
-                    ).init())
+                blocksHolder.new(MusicBlock.createByYt(arg))
                 break
             }
             default: break

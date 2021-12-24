@@ -32,7 +32,7 @@ export default observer(function Block({ offsetX, offsetY, zoom, id, selectedBlo
             model.setDom(ref.current)
             domSet.current = true
         }
-    }, [ref.current, model])
+    }, [model])
 
     return model ? <BlockBase
         ref={ref}

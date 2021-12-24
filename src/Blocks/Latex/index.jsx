@@ -1,5 +1,4 @@
 import { observer } from 'mobx-react-lite';
-import styled from 'styled-components';
 import React, { useRef } from "react"
 import { BlockMath } from 'react-katex';
 import { createPortal } from 'react-dom';
