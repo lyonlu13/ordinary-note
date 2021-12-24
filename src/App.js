@@ -209,6 +209,8 @@ function App() {
       case "audio":
         if (pastingObject.yt)
           blocksHolder.new(MusicBlock.createByYt(pastingObject.yt))
+        else
+          blocksHolder.new(MusicBlock.createByUrl(pastingObject.url))
         break
       default:
     }

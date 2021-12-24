@@ -250,23 +250,11 @@ MusicBlock.createByYt = (url, pos) => {
             url
         }
     })
-    // return new MusicBlock(null,
-    //     "",
-    //     {
-    //         pos: pos || { x: 0, y: 0 }
-    //     },
-    //     {
-    //         type: "yt",
-    //         source: {
-    //             url
-    //         }
-    //     }
-    // ).init()
 }
 
 MusicBlock.createByUrl = (url, pos) => {
     return new MusicBlock().init().setData({
-        type: "yt",
+        type: "url",
         source: {
             url
         }

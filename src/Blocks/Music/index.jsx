@@ -2,6 +2,7 @@ import { observer } from "mobx-react-lite"
 import styled from "styled-components"
 import React, { useEffect, useRef, useState } from "react"
 import { BiPlay, BiPause, } from "react-icons/bi"
+import { BsDiscFill } from "react-icons/bs"
 import { IoRepeatSharp } from "react-icons/io5"
 import Marquee from "react-fast-marquee";
 import { Howl, Howler } from 'howler';
@@ -9,16 +10,16 @@ import { BlocksHolder } from "define/blocks"
 import { formatSec } from "utils/format.js"
 
 const Cover = styled.div`
-  border-radius:1000px 0 0  1000px;
+  border-radius:1000px 0 0 1000px;
   position: relative;
   width:130px;
   height:100px;
-  background:${props => props.src ? `url(${props.src})` : "gray"};
-  background-position: center;
+  background-position: center !important;
   flex-shrink: 0;
 `
 
 const Player = styled.div`
+  width: calc(100% - 130px);
   flex-grow: 1;
   padding:10px;
   background-color:white;
@@ -110,21 +111,24 @@ export default observer(function Music({ model, isSelected, selectedBlock, dragg
 
       Howler.autoUnlock = true
       const url = model.data.source.url
-      initHowl(model.data.source.preload, () => {
-        fetch(`https://7rs07iiiz2.execute-api.ap-northeast-1.amazonaws.com/default/yt-dl?url=${url}&audio=true`)
-          .then((res) => {
-            return res.json();
-          }).then((res) => {
-            model.setSource({
-              url,
-              preload: res.formats[0].url,
-              thumbnail: res.videoDetails.thumbnails[2].url,
-              title: res.videoDetails.title,
+      if (model.data.type === "yt") {
+        initHowl(model.data.source.preload, () => {
+          fetch(`https://7rs07iiiz2.execute-api.ap-northeast-1.amazonaws.com/default/yt-dl?url=${url}&audio=true`)
+            .then((res) => {
+              return res.json();
+            }).then((res) => {
+              model.setSource({
+                url,
+                preload: res.formats[0].url,
+                thumbnail: res.videoDetails.thumbnails[2].url,
+                title: res.videoDetails.title,
+              })
+              initHowl(res.formats[2].url)
             })
-            initHowl(res.formats[2].url)
-          })
-      })
-
+        })
+      } else if (model.data.type === "url") {
+        initHowl(url)
+      }
 
     }
     if (!model.howl)
@@ -182,31 +186,21 @@ export default observer(function Music({ model, isSelected, selectedBlock, dragg
             BlocksHolder.getInstance().sendToFront(model.id)
         }
       }}
-      src={model.data.source.thumbnail}
-      style={{ filter: `brightness(${loading ? .7 : 1})` }}>
-      <div className="spinner"
-        style={{
-          position: "absolute",
-          left: "50%",
-          top: "50%",
-          transform: "translate(-50%,-50%)",
-          opacity: loading ? 1 : 0,
-          transition: "0.5s"
-        }}>
-        <div className="double-bounce1"></div>
-        <div className="double-bounce2"></div>
-      </div>
+      style={{
+        filter: `brightness(${loading ? .7 : 1})`,
+        background: model.data.source.thumbnail ? `url(${model.data.source.thumbnail})` : (model.data.type === 'yt' ? "gray" : model.info.color)
+      }}>
+      {model.data.type === "yt" ? <Loading show={loading ? 1 : 0} /> : <DiskIcon rotate={playing} />}
     </Cover>
     <Player>
-      <Marquee gradientWidth={10} >{loading ? "載入音樂中" : model.data.source.title}<Space /></Marquee>
+      <Marquee gradientWidth={10} >{loading ? "載入音樂中" : (model.data.type === "yt" ? model.data.source.title : model.data.source.url)}<Space /></Marquee>
       <Time><span>{loading ? "00:00" : formatSec(seek)}</span><span>{loading ? "--:--" : formatSec(duration)}</span></Time>
       <Progress>
         <div style={{
           height: 10,
           width: loading ? "0" : seek / duration * 100 + "%",
-          backgroundColor: "red",
+          backgroundColor: model.info.color,
         }}>
-
         </div>
       </Progress>
       <Controller>
@@ -217,18 +211,50 @@ export default observer(function Music({ model, isSelected, selectedBlock, dragg
             cursor: loading ? "auto" : "pointer",
             pointerEvents: loading ? "none" : "auto"
           }}>
-          <BiPlay color="red"
+          <BiPlay color={model.info.color}
             size={30} style={{ opacity: playing ? 0 : 1 }} />
-          <BiPause color="red"
+          <BiPause color={model.info.color}
             size={30} style={{ opacity: playing ? 1 : 0 }} />
         </Toggle>
         <Toggle style={{ opacity: loop ? 1 : 0.3, cursor: loading ? "auto" : "pointer" }} >
           <IoRepeatSharp
             onClick={loopToggle}
-            color="red"
+            color={model.info.color}
             size={25} />
         </Toggle>
       </Controller>
     </Player>
   </div >
 })
+
+function Loading({ show }) {
+  return <div className="spinner"
+    style={{
+      position: "absolute",
+      left: "50%",
+      top: "50%",
+      transform: "translate(-50%,-50%)",
+      opacity: show,
+      transition: "0.5s"
+    }}>
+    <div className="double-bounce1"></div>
+    <div className="double-bounce2"></div>
+  </div>
+}
+
+function DiskIcon({ rotate }) {
+  return <span style={{
+    position: "absolute",
+    left: "50%",
+    top: "50%",
+    transform: "translate(-50%,-50%)",
+  }}>
+    <BsDiscFill
+      style={{
+        animation: "spin 4s linear infinite",
+        animationPlayState: rotate ? "" : "paused",
+        transition: "0.3s"
+      }} size={50}
+      color={rotate ? "white" : "#ddd"} />
+  </span>
+}
