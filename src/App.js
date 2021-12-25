@@ -9,7 +9,7 @@ import { BiCurrentLocation } from "react-icons/bi";
 import { FaMousePointer } from "react-icons/fa";
 import { MdZoomOutMap } from "react-icons/md";
 import { CommandBar } from './components/CommandBar/index';
-import { urlCheck } from 'utils/check';
+import { overlapCheck, urlCheck } from 'utils/check';
 import when from 'utils/flow';
 
 const Touch = styled.div`
@@ -61,6 +61,16 @@ const Tag = styled.div`
   margin-right:10px;
 `
 
+const SelectingFrame = styled.div`
+  position: fixed;
+  width:100px;
+  height:100px;
+  border: 3px solid #4186b0;
+  background-color: #b0e1ff55;
+  z-index:4;
+`
+
+
 const blocksHolder = BlocksHolder.getInstance()
 
 
@@ -101,6 +111,7 @@ function App() {
 
   const [selectedBlocks, setSelectedBlocks] = useState([]);
 
+  const [selectingStart, setSelectingStart] = useState(null);
 
   const dragOffset = useRef({})
   const [isDragging, setDragging] = useState(false);
@@ -162,6 +173,8 @@ function App() {
       originMouse.current.x = e.clientX
       originMouse.current.y = e.clientY
       setHold(true)
+    } else if (e.button === 0) {
+      setSelectingStart({ x: mouseX, y: mouseY })
     }
   }
 
@@ -296,6 +309,15 @@ function App() {
       setHold(false)
       dragging(false)
       resizing(false)
+      console.log(selectingStart.x, mouseX);
+      const boundary = [
+        { x: Math.min(mouseX, selectingStart.x), y: Math.min(mouseY, selectingStart.y) },
+        { x: Math.max(mouseX, selectingStart.x), y: Math.max(mouseY, selectingStart.y) }
+      ]
+      setSelectedBlocks(blocksHolder.ids.filter((id) =>
+        overlapCheck(boundary, blocksHolder.blocks[id].dom)
+      ).map((id) => blocksHolder.blocks[id]))
+      setSelectingStart(null)
     }
 
     document.onkeydown = (e) => {
@@ -303,7 +325,7 @@ function App() {
         if (selectedBlocks.length >= 1)
           blocksHolder.remove(selectedBlocks)
       }
-      if (e.key === " ") {
+      else if (e.key === " ") {
         setSpace(true)
       }
     }
@@ -315,10 +337,18 @@ function App() {
     }
 
     document.onwheel = zooming
-  }, [isDragging, isResizing, selectedBlocks, zoom])
+  }, [isDragging, isResizing, selectedBlocks, zoom, selectingStart, mouseX, mouseY])
 
   return (
     <>
+      {selectingStart &&
+        <SelectingFrame
+          style={{
+            top: Math.min(selectingStart.y, mouseY),
+            left: Math.min(selectingStart.x, mouseX),
+            width: Math.abs(mouseX - selectingStart.x),
+            height: Math.abs(mouseY - selectingStart.y),
+          }} />}
       <BackPatten type="grid" offsetX={offsetX} offsetY={offsetY} option={{ size: 30 * zoom, groupSize: 20 }} />
       <WorkSpace
         zooming={zooming}
@@ -333,7 +363,6 @@ function App() {
       <Touch
         onMouseDown={mouseDown}
         onMouseMove={mouseMove}
-        onClick={() => selected([])}
         style={{
           cursor: isHold ? "grabbing" : (space ? "grab" : "auto")
         }} />

@@ -2,7 +2,7 @@ export async function urlCheck(text) {
     // Ref: https://blog.xuite.net/vexed/tech/46146920
     const regex = /(https?:\/\/[\w-\.]+(:\d+)?(\/[~\w\/\.]*)?(\?\S*)?(#\S*)?)/
     return new Promise(async (resolve, reject) => {
-        if (text.match(regex)) {
+        if (text.match(regex) || text.indexOf("data:") > -1) {
             if (text.indexOf("www.youtube.com") > -1) return resolve("yt")
             const isAudio = await audioCheck(text);
             if (isAudio) return resolve("audio")
@@ -10,12 +10,11 @@ export async function urlCheck(text) {
             if (isImg) return resolve("image")
             resolve("else")
         }
+
         else resolve(null);
     })
 
 }
-
-
 
 // Ref: https://stackoverflow.com/questions/9714525/javascript-image-url-verify
 function imageCheck(url) {
@@ -64,4 +63,16 @@ function audioCheck(url) {
             resolve(null);
         }, timeout);
     })
+}
+
+export function overlapCheck(boundary = [{ x: 0, y: 0 }, { x: 0, y: 0 }], target) {
+    var rect = target.getBoundingClientRect();
+    if (boundary[1].x > rect.left &&
+        rect.right > boundary[0].x &&
+        boundary[1].y > rect.top &&
+        rect.bottom > boundary[0].y) {
+        return true;
+    } else {
+        return false;
+    }
 }

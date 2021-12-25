@@ -120,14 +120,18 @@ export class ImageBlock {
     paste(pastingObject) {
         const me = this
         if (pastingObject.type === "image") {
-            var reader = new FileReader();
-            reader.readAsDataURL(pastingObject.file);
-            reader.onload = function () {
-                me.setSrc(reader.result)
-            };
-            reader.onerror = function (error) {
-                console.log('Error: ', error);
-            };
+            if (pastingObject.file) {
+                var reader = new FileReader();
+                reader.readAsDataURL(pastingObject.file);
+                reader.onload = function () {
+                    me.setSrc(reader.result)
+                };
+                reader.onerror = function (error) {
+                    console.log('Error: ', error);
+                };
+            } else {
+                me.setSrc(pastingObject.url)
+            }
         }
     }
 }
