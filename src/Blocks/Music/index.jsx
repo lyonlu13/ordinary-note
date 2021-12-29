@@ -8,6 +8,7 @@ import Marquee from "react-fast-marquee";
 import { Howl, Howler } from 'howler';
 import { BlocksHolder } from "define/blocks"
 import { formatSec } from "utils/format.js"
+import Icon from "components/Icon"
 
 const Cover = styled.div`
   border-radius:1000px 0 0 1000px;
@@ -211,16 +212,18 @@ export default observer(function Music({ model, isSelected, selectedBlock, dragg
             cursor: loading ? "auto" : "pointer",
             pointerEvents: loading ? "none" : "auto"
           }}>
-          <BiPlay color={model.info.color}
+          <Icon icon="play" color={model.info.color}
             size={30} style={{ opacity: playing ? 0 : 1 }} />
-          <BiPause color={model.info.color}
+          <Icon icon="pause" color={model.info.color}
             size={30} style={{ opacity: playing ? 1 : 0 }} />
         </Toggle>
         <Toggle style={{ opacity: loop ? 1 : 0.3, cursor: loading ? "auto" : "pointer" }} >
-          <IoRepeatSharp
+
+          <Icon icon="repeat"
             onClick={loopToggle}
             color={model.info.color}
             size={25} />
+
         </Toggle>
       </Controller>
     </Player>
