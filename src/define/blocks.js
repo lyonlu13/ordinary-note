@@ -246,7 +246,6 @@ export class MusicBlock {
     }
 }
 
-
 MusicBlock.createByYt = (url, pos) => {
     return new MusicBlock().init().setData({
         type: "yt",
@@ -334,7 +333,6 @@ function save() {
     blocksHolder.save()
 }
 
-
 const castMap = {
     text: TextBlock,
     image: ImageBlock,
@@ -348,4 +346,27 @@ function specify(raw) {
     if (SpecificBlock)
         return new SpecificBlock(raw.id, raw.name, raw.geometry, raw.data)
     else return null;
+}
+
+export function alignVertical(targets, gap) {
+    targets = _.sortBy(targets, [(block) => block.geometry.pos.y, (block) => block.geometry.pos.x])
+    // Unfortunately, JS classic sort is unstable.
+    // Random alignment for blocks with the same x-coordinate is a kind little bit weird...
+    // targets.sort((block) => block.geometry.pos.x).sort((block) => block.geometry.pos.y)
+    const posX = targets[0].geometry.pos.x
+    let posY = targets[0].geometry.pos.y
+    targets.forEach((block) => {
+        block.setPos(posX, posY)
+        posY += block.dom.offsetHeight + gap
+    })
+}
+
+export function alignHorizontal(targets, gap) {
+    targets = _.sortBy(targets, [(block) => block.geometry.pos.x, (block) => block.geometry.pos.y])
+    const posY = targets[0].geometry.pos.y
+    let posX = targets[0].geometry.pos.x
+    targets.forEach((block) => {
+        block.setPos(posX, posY)
+        posX += block.dom.offsetWidth + gap
+    })
 }

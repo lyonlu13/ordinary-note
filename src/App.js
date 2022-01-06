@@ -3,7 +3,7 @@ import BackPatten from "components/BackPatten";
 import { useEffect, useRef, useState } from 'react';
 import 'katex/dist/katex.min.css';
 import { observer } from "mobx-react-lite" // Or "mobx-react".
-import { BlocksHolder, ImageBlock, MusicBlock, TextBlock } from 'define/blocks';
+import { alignVertical, BlocksHolder, ImageBlock, MusicBlock, TextBlock } from 'define/blocks';
 import Block from 'Blocks';
 import { BiCurrentLocation } from "react-icons/bi";
 import { FaMousePointer } from "react-icons/fa";
@@ -11,6 +11,10 @@ import { MdZoomOutMap } from "react-icons/md";
 import { CommandBar } from './components/CommandBar/index';
 import { overlapCheck, urlCheck } from 'utils/check';
 import when from 'utils/flow';
+import Icon from './components/Icon/index';
+import IconButton from './components/IconButton/index';
+import { alignHorizontal } from './define/blocks';
+import Toolbox from './components/Toolbox/index';
 
 const Touch = styled.div`
   position:absolute;
@@ -69,7 +73,6 @@ const SelectingFrame = styled.div`
   background-color: #b0e1ff55;
   z-index:4;
 `
-
 
 const blocksHolder = BlocksHolder.getInstance()
 
@@ -366,68 +369,7 @@ function App() {
         style={{
           cursor: isHold ? "grabbing" : (space ? "grab" : "auto")
         }} />
-      {/* <Block
-          x={30}
-          y={0}
-          offsetX={offsetX}
-          offsetY={offsetY}
-          zoom={zoom}
-          color={"#00a2ff"}
-          label={"Audio"}
-        >
-          <audio ref={ref} src="file:///D:\Users\Lyon\Desktop\test.mp3" controls="true"></audio>
-        </Block>
 
-        <Block
-          x={300}
-          y={150}
-          offsetX={offsetX}
-          offsetY={offsetY}
-          zoom={zoom}
-          color={"#ff008c"}
-          label={"Text Area"}
-        >
-          <textarea name="" id="" cols="30" rows="10">
-            I am invisible!!!!!!!
-          </textarea>
-        </Block>
-
-        <Block
-          x={200}
-          y={400}
-          offsetX={offsetX}
-          offsetY={offsetY}
-          zoom={zoom}
-          color={"#7700ff"}
-          label={"Text Area"}
-        >
-          <Input storage={st} />
-          <Text storage={st} />
-        </Block>
-
-        <Block
-          x={-330}
-          y={90}
-          offsetX={offsetX}
-          offsetY={offsetY}
-          zoom={zoom}
-          color={"#00a808"}
-          label={"LaTeX"}
-        >
-        </Block>
-
-        <Block
-          x={-300}
-          y={260}
-          offsetX={offsetX}
-          offsetY={offsetY}
-          zoom={zoom}
-          color={"#ffc400"}
-          label={"Image"}
-        >
-          <img ref={ref2} width="400" src="https://www.mirrormedia.com.tw/assets/images/20210811183042-492063c52c4c70e0ffe94db30f8395b8-mobile.jpg" alt="" />        </Block>
-
-      */}
       <RightPanel>
         <Display>
           <DisplayTitle>資訊</DisplayTitle>
@@ -454,10 +396,19 @@ function App() {
 
           </div>
         </Display>
+        <Display
+          style={{
+            opacity: selectedBlocks.length < 2 ? 0 : 1,
+            pointerEvents: selectedBlocks.length < 2 ? "none" : "auto"
+          }}>
+          <DisplayTitle>排列</DisplayTitle>
+          <div style={{ marginTop: 10, display: "flex", gap: 5 }}>
+            <IconButton icon="align_v" color="#003D83" onClick={() => alignVertical(selectedBlocks, 20)} />
+            <IconButton icon="align_h" color="#003D83" onClick={() => alignHorizontal(selectedBlocks, 20)} />
+          </div>
+        </Display>
       </RightPanel>
-
-
-
+      <Toolbox />
       <CommandBar />
     </>
   );

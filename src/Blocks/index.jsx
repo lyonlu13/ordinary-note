@@ -47,7 +47,6 @@ export default observer(function Block({ offsetX, offsetY, zoom, id, selectedBlo
             left: model.geometry.pos.x * zoom + offsetX,
             transform: `scale(${zoom * 100}%)`,
             filter: isDragging ? "drop-shadow(12px 12px 1px rgba(0, 0, 0, 0.1))" : "",
-            transition: "filter 0.3s"
         }}
         onMouseUp={(e) => {
             if (isDragging) return
