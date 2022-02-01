@@ -17,7 +17,8 @@
 
 ## Demo
 
-使用看看：
+使用看看：https://lyonlu13.github.io/Ordinary-Note
+警告：它還沒做完，不要拿來記重要的東東
 
 ## 關於
 
