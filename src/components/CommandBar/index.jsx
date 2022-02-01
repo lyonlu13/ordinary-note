@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import { useState, useEffect, useRef } from 'react';
 import { ArrayBlock, BlocksHolder, MusicBlock, TextBlock } from 'define/blocks';
 import { LatexBlock } from './../../define/blocks';
+import { Position } from 'define/basic';
 
 const blocksHolder = BlocksHolder.getInstance()
 
@@ -104,7 +105,7 @@ export function CommandBar() {
             case "yt": {
                 parts.splice(0, 1)
                 let arg = parts.join(" ")
-                blocksHolder.new(MusicBlock.createByYt(arg))
+                blocksHolder.new(MusicBlock.createByYt(arg, new Position(0, 0)))
                 break
             }
             default: break

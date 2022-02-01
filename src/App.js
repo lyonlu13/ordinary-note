@@ -15,6 +15,7 @@ import Icon from './components/Icon/index';
 import IconButton from './components/IconButton/index';
 import { alignHorizontal } from './define/blocks';
 import Toolbox from './components/Toolbox/index';
+import { Position } from 'define/basic';
 
 const Touch = styled.div`
   position:absolute;
@@ -101,8 +102,8 @@ function App() {
   const [mouseX, setMouseX] = useState(0);
   const [mouseY, setMouseY] = useState(0);
 
-  const [offsetX, setOffsetX] = useState(500);
-  const [offsetY, setOffsetY] = useState(100);
+  const [offsetX, setOffsetX] = useState(20);
+  const [offsetY, setOffsetY] = useState(20);
 
   // const [gapX, setGapX] = useState(0);
   // const [gapY, setGapY] = useState(0);
@@ -224,9 +225,9 @@ function App() {
         break
       case "audio":
         if (pastingObject.yt)
-          blocksHolder.new(MusicBlock.createByYt(pastingObject.yt))
+          blocksHolder.new(MusicBlock.createByYt(pastingObject.yt, new Position(0, 0)))
         else
-          blocksHolder.new(MusicBlock.createByUrl(pastingObject.url))
+          blocksHolder.new(MusicBlock.createByUrl(pastingObject.url, new Position(0, 0)))
         break
       default:
     }
@@ -261,29 +262,35 @@ function App() {
       } else {
         if (dT.items[0])
           dT.items[0].getAsString((txt) => {
-            urlCheck(txt).then((res) => {
-              console.log(res);
+            let url = txt;
+            try {
+              const obj = JSON.parse(txt)
+              url = obj.url
+            } catch {
+
+            }
+            urlCheck(url).then((res) => {
               if (res) {
                 when(res)
                   .case("image", () => forwardPaste({
                     type: "image",
-                    url: txt
+                    url: url
                   }))
                   .case("audio", () => forwardPaste({
                     type: "audio",
-                    url: txt
+                    url: url
                   }))
                   .case("yt", () => forwardPaste({
                     type: "audio",
-                    yt: txt
+                    yt: url
                   }))
                   .else(() => forwardPaste({
                     type: "text",
-                    text: txt
+                    text: url
                   }))
               } else forwardPaste({
                 type: "text",
-                text: txt
+                text: url
               })
             })
 
@@ -312,7 +319,6 @@ function App() {
       setHold(false)
       dragging(false)
       resizing(false)
-      console.log(selectingStart.x, mouseX);
       const boundary = [
         { x: Math.min(mouseX, selectingStart.x), y: Math.min(mouseY, selectingStart.y) },
         { x: Math.max(mouseX, selectingStart.x), y: Math.max(mouseY, selectingStart.y) }

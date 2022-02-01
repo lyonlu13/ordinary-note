@@ -41,7 +41,7 @@ export default observer(function Text({ model }) {
         model.setText(e.target.value)
       }}
       tagName='div'
-      style={TextArea}
+      style={{ ...TextArea, fontSize: model.data.fontsize }}
       onKeyDown={(e) => {
         e.stopPropagation()
       }}

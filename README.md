@@ -1,70 +1,43 @@
-# Getting Started with Create React App
+# 平凡筆記 Ordinary Note
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+![logo](https://lyonlu13.github.io/Ordinary-Note/Logo.png)
 
-## Available Scripts
+## 簡介
 
-In the project directory, you can run:
+&emsp;&emsp;一個擁有無限可能的筆記，透過剪貼、拖曳與作業系統完美搭配，將雜亂分散的資訊輕易的整理成腦中理想的模樣。
 
-### `yarn start`
+## 目錄
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+- [簡介](#簡介)
+- [Demo](#Demo)
+- [關於](#關於)
+  - [它可以做什麼](#它可以做什麼)
+  - [設計方向](#設計方向)
+- [功能](#功能)
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Demo
 
-### `yarn test`
+使用看看：
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 關於
 
-### `yarn build`
+### 它可以做什麼
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+&emsp;&emsp;在最初規劃時，我希望平凡筆記可以用來做任何事，包含計畫、紀錄、筆記等等。你可以把它當作一個工作區，新增任何需要的內容，或是單純透過複製貼上來加入任何你需要安排或釐清的資訊。
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 設計方向
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+&emsp;&emsp;為提供直覺的操作方式，所有資訊皆由方塊表示，並盡可能支援所有可能透過剪貼簿傳遞的內容。排版方式為自由放置，允許使用者設計自己的空間配置，不受限於文件格式。
 
-### `yarn eject`
+### 功能
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+&emsp;&emsp;以下為已實現或已規劃的功能：
+✔️ 已完成 🚧 正在進行 📅 規劃中
+項目 |清單 | 備註
+--------------|:--------|------------
+筆記移動縮放 | ✔️ 移動 <br> ✔️ 定點縮放 <br> 🚧 自由縮放 | 目前縮放中心固定於原點，並非滑鼠位置，操作上有些不直覺
+方塊基礎移動 | ✔️ 拖曳名稱標籤 <br> ✔️ 拖曳方塊內容 | 所有方塊皆可透過拖曳名稱標籤進行移動，少數不可直接編輯的方塊則可直接被拖動
+方塊屬性| ✔️ 屬性欄 <br> 🚧 所有方塊屬性 | 大部分方塊的屬性尚未完備
+方塊排列| ✔️ 完成 |
+指令列| ✔️ 簡單操作 <br> 📅 資料流 <br> 📅 自動化 |
+方塊排列| ✔️ 完成 |
